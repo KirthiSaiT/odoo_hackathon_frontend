@@ -3,25 +3,25 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { Button } from '../components/ui/button';
 import { Search } from '@mui/icons-material';
+import { useGetProductsQuery } from '../services/productsApi';
 
 const Shop = () => {
     const navigate = useNavigate();
+    const [searchTerm, setSearchTerm] = useState('');
     const [priceRange, setPriceRange] = useState(1000);
     const [selectedCategories, setSelectedCategories] = useState([]);
 
-    const categories = [
-        "All Products", "Electronics", "Clothing", "Home & Garden", "Sports", "Toys"
-    ];
+    // Fetch Products from API
+    const { data: productsData, isLoading, isError } = useGetProductsQuery({
+        page: 1,
+        size: 50,
+        search: searchTerm
+    });
 
-    const products = [
-        { id: 1, name: "Premium Headphones", price: 299, type: "Electronics", billing: "One-time" },
-        { id: 2, name: "Ergonomic Chair", price: 199, type: "Home & Garden", billing: "One-time" },
-        { id: 3, name: "Smart Watch", price: 149, type: "Electronics", billing: "One-time" },
-        { id: 4, name: "Running Shoes", price: 89, type: "Sports", billing: "One-time" },
-        { id: 5, name: "Cotton T-Shirt", price: 25, type: "Clothing", billing: "One-time" },
-        { id: 6, name: "Yoga Mat", price: 35, type: "Sports", billing: "One-time" },
-        { id: 7, name: "Coffee Maker", price: 79, type: "Home & Garden", billing: "One-time" },
-        { id: 8, name: "Bluetooth Speaker", price: 59, type: "Electronics", billing: "One-time" },
+    const products = productsData?.items || [];
+
+    const categories = [
+        "All Products", "Electronics", "Clothing", "Home & Garden", "Sports", "Toys", "Goods", "Service"
     ];
 
     return (
@@ -55,7 +55,7 @@ const Shop = () => {
                         <input
                             type="range"
                             min="0"
-                            max="1000"
+                            max="5000"
                             value={priceRange}
                             onChange={(e) => setPriceRange(e.target.value)}
                             className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary mb-2"
@@ -82,6 +82,8 @@ const Shop = () => {
                             <input
                                 type="text"
                                 placeholder="Search products..."
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
                                 className="w-full pl-10 pr-4 py-2 rounded-lg border border-border-light bg-white text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                             />
                         </div>
@@ -96,35 +98,47 @@ const Shop = () => {
                     </div>
 
                     {/* Product Grid */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {products.map((product) => (
-                            <div key={product.id} className="bg-white rounded-lg shadow-sm border border-border-light p-4 flex flex-col hover:shadow-md transition-all duration-200 group">
-                                <div className="aspect-square bg-gray-100 rounded-lg mb-4 flex items-center justify-center text-text-secondary group-hover:bg-gray-50 transition-colors">
-                                    {/* Placeholder for Product Image */}
-                                    <span className="text-sm font-medium text-gray-400">Image</span>
-                                </div>
-                                <div className="mt-auto">
-                                    <div className="mb-2">
-                                        <h3 className="font-semibold text-text-primary leading-tight mb-1">{product.name}</h3>
-                                        <p className="text-xs text-text-secondary bg-gray-100 inline-block px-2 py-0.5 rounded-full">{product.type}</p>
+                    {isLoading ? (
+                        <div className="text-center py-20 text-gray-500">Loading products...</div>
+                    ) : isError ? (
+                        <div className="text-center py-20 text-red-500">Failed to load products.</div>
+                    ) : products.length === 0 ? (
+                        <div className="text-center py-20 text-gray-500">No products found.</div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                            {products.map((product) => (
+                                <div key={product.id} className="bg-white rounded-lg shadow-sm border border-border-light p-4 flex flex-col hover:shadow-md transition-all duration-200 group">
+                                    <div className="aspect-square bg-gray-100 rounded-lg mb-4 flex items-center justify-center text-text-secondary group-hover:bg-gray-50 transition-colors">
+                                        {/* Placeholder for Product Image */}
+                                        <span className="text-sm font-medium text-gray-400">
+                                            {product.name.charAt(0)}
+                                        </span>
                                     </div>
-                                    <div className="flex justify-between items-center pt-3 mt-2 border-t border-gray-100">
-                                        <div>
-                                            <span className="block text-lg font-bold text-text-primary">${product.price}</span>
-                                            <span className="text-[10px] text-text-secondary uppercase tracking-wider">{product.billing}</span>
+                                    <div className="mt-auto">
+                                        <div className="mb-2">
+                                            <h3 className="font-semibold text-text-primary leading-tight mb-1 truncate" title={product.name}>{product.name}</h3>
+                                            <p className="text-xs text-text-secondary bg-gray-100 inline-block px-2 py-0.5 rounded-full">{product.product_type}</p>
                                         </div>
-                                        <Button
-                                            size="sm"
-                                            className="h-8 px-4 text-xs font-medium"
-                                            onClick={() => navigate(`/shop/${product.id}`)}
-                                        >
-                                            Add
-                                        </Button>
+                                        <div className="flex justify-between items-center pt-3 mt-2 border-t border-gray-100">
+                                            <div>
+                                                <span className="block text-lg font-bold text-text-primary">${product.sales_price?.toFixed(2)}</span>
+                                                <span className="text-[10px] text-text-secondary uppercase tracking-wider">
+                                                    {product.tax ? `+ ${product.tax} Tax` : 'No Tax'}
+                                                </span>
+                                            </div>
+                                            <Button
+                                                size="sm"
+                                                className="h-8 px-4 text-xs font-medium"
+                                                onClick={() => navigate(`/shop/${product.id}`)}
+                                            >
+                                                Add
+                                            </Button>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
-                    </div>
+                            ))}
+                        </div>
+                    )}
                 </main>
             </div>
         </div>
