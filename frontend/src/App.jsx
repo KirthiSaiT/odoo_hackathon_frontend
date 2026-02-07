@@ -7,6 +7,12 @@ import {
   ResetPassword,
   VerifyEmail,
   Home,
+  UserDetails,
+  Orders,
+  Shop,
+  ProductDetails,
+  Cart,
+  OrderDetails,
 } from './pages';
 import ProtectedRoute from './components/ProtectedRoute';
 import AdminLayout from './layouts/AdminLayout';
@@ -91,6 +97,13 @@ function App() {
               <Route path="/admin/roles" element={<Roles />} />
               <Route path="/admin/role-rights" element={<RoleRights />} />
             </Route>
+            <Route path="/home" element={<Home />} />
+            <Route path="/user-details" element={<UserDetails />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/orders/:id" element={<OrderDetails />} />
+            <Route path="/shop" element={<Shop />} />
+            <Route path="/shop/:id" element={<ProductDetails />} />
+            <Route path="/cart" element={<Cart />} />
           </Route>
 
           {/* Default Redirect */}

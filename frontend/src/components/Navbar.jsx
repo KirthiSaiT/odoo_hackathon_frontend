@@ -19,10 +19,12 @@ import {
     AdminPanelSettings,
     Menu,
 } from '@mui/icons-material';
+import logo from '../assets/odoo_logo.png';
 
-    const Navbar = ({ showLogo = true, onMenuClick }) => {
+const Navbar = ({ showLogo = true, onMenuClick }) => {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isAdminOpen, setIsAdminOpen] = useState(false);
+    const [closeTimeout, setCloseTimeout] = useState(null);
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const user = useSelector(selectCurrentUser);
@@ -35,6 +37,31 @@ import {
         localStorage.removeItem('token');
         sessionStorage.clear();
         navigate('/login');
+    };
+
+    const handleUserDetails = () => {
+        navigate('/user-details');
+        setIsProfileOpen(false);
+    };
+
+    const handleOrders = () => {
+        navigate('/orders');
+        setIsProfileOpen(false);
+    };
+
+    const handleMouseEnter = () => {
+        if (closeTimeout) {
+            clearTimeout(closeTimeout);
+            setCloseTimeout(null);
+        }
+        setIsProfileOpen(true);
+    };
+
+    const handleMouseLeave = () => {
+        const timeout = setTimeout(() => {
+            setIsProfileOpen(false);
+        }, 300);
+        setCloseTimeout(timeout);
     };
 
     const adminLinks = [
@@ -60,14 +87,12 @@ import {
                         )}
                         
                         {showLogo && (
-                            <Link to="/home" className="flex items-center gap-2">
-                                <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-                                    <span className="text-white font-bold text-lg">O</span>
-                                </div>
-                                <span className="text-text-primary font-semibold text-lg hidden sm:block">
-                                    Odoo
-                                </span>
-                            </Link>
+                            <div
+                                className="cursor-pointer"
+                                onClick={() => navigate('/home')}
+                            >
+                                <img src={logo} alt="Company Logo" className="h-10 w-auto" />
+                            </div>
                         )}
                     </div>
 
@@ -80,16 +105,30 @@ import {
                             <Home style={{ fontSize: 18 }} />
                             <span className="hidden sm:inline">Home</span>
                         </Link>
-
-
+                        <span
+                            onClick={() => navigate('/shop')}
+                            className="text-text-primary font-medium hover:text-primary transition-colors cursor-pointer"
+                        >
+                            Shop
+                        </span>
                     </div>
 
-                    {/* Right: Profile */}
+                    {/* Right: Cart and Profile */}
                     <div className="flex items-center space-x-4">
+                        <Button
+                            variant="outline"
+                            size="default"
+                            onClick={() => navigate('/cart')}
+                        >
+                            Cart
+                        </Button>
+
                         <DropdownMenu>
                             <DropdownMenuTrigger>
                                 <button
                                     onClick={() => setIsProfileOpen(!isProfileOpen)}
+                                    onMouseEnter={handleMouseEnter}
+                                    onMouseLeave={handleMouseLeave}
                                     className="flex items-center gap-2 px-3 py-2 rounded-lg hover:bg-gray-50 transition-colors"
                                 >
                                     <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
@@ -109,7 +148,16 @@ import {
                             </DropdownMenuTrigger>
 
                             {isProfileOpen && (
-                                <DropdownMenuContent>
+                                <DropdownMenuContent
+                                    onMouseEnter={handleMouseEnter}
+                                    onMouseLeave={handleMouseLeave}
+                                >
+                                    <DropdownMenuItem onClick={handleUserDetails}>
+                                        User details
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={handleOrders}>
+                                        Orders
+                                    </DropdownMenuItem>
                                     <DropdownMenuItem onClick={handleSignOut}>
                                         <Logout style={{ fontSize: 16, marginRight: 8 }} />
                                         Sign Out
