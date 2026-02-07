@@ -59,7 +59,7 @@ const CheckoutForm = ({ clientSecret, paymentIntentId, amount, onSuccess }) => {
                 onSuccess(); // Close modal
 
                 // Redirect to Order Details
-                navigate(`/orders/${order.id}`);
+                navigate(`/orders/${order.order_id}`);
 
             } catch (err) {
                 console.error("Post-payment error:", err);
