@@ -7,6 +7,7 @@ import { profileApi } from '../services/profileApi';
 import { productsApi } from '../services/productsApi';
 import { cartApi } from '../services/cartApi';
 import { subscriptionsApi } from '../services/subscriptionsApi';
+import { orderApi } from '../services/orderApi';
 
 import { isRejectedWithValue } from '@reduxjs/toolkit';
 import { logout } from './authSlice';
@@ -36,6 +37,7 @@ export const store = configureStore({
     [productsApi.reducerPath]: productsApi.reducer,
     [cartApi.reducerPath]: cartApi.reducer,
     [subscriptionsApi.reducerPath]: subscriptionsApi.reducer,
+    [orderApi.reducerPath]: orderApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -45,6 +47,7 @@ export const store = configureStore({
       productsApi.middleware,
       cartApi.middleware,
       subscriptionsApi.middleware,
+      orderApi.middleware,
       rtkQueryErrorLogger
     ),
 });

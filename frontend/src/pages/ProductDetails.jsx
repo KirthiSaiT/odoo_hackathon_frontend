@@ -66,7 +66,7 @@ const ProductDetails = () => {
 
             <div className="max-w-7xl mx-auto px-6 py-8">
                 {/* Breadcrumbs */}
-                <div className="text-sm text-text-secondary mb-8 font-handwritten text-lg">
+                <div className="text-sm text-text-secondary mb-8 font-sans text-lg">
                     <span className="cursor-pointer hover:text-primary" onClick={() => navigate('/shop')}>All products</span>
                     <span className="mx-2">/</span>
                     <span className="cursor-pointer hover:text-primary">{product.category}</span>
@@ -113,7 +113,7 @@ const ProductDetails = () => {
 
                     {/* Right Column: Product Details */}
                     <div className="w-full">
-                        <h1 className="text-3xl lg:text-4xl font-handwritten text-primary mb-6">{product.name}</h1>
+                        <h1 className="text-3xl lg:text-4xl font-bold text-primary mb-6">{product.name}</h1>
                         <div className="border-b border-primary/30 mb-6"></div>
 
                         {/* Pricing Table */}
@@ -143,7 +143,7 @@ const ProductDetails = () => {
                             )}
                         </div>
 
-                        <div className="text-sm font-handwritten text-text-secondary mb-8 text-lg lg:text-xl">
+                        <div className="text-sm font-sans text-text-secondary mb-8 text-lg lg:text-xl">
                             {product.product_type}
                         </div>
 
@@ -152,7 +152,7 @@ const ProductDetails = () => {
                         {/* Variants / Actions */}
                         <div className="flex flex-col sm:flex-row items-start sm:items-end gap-6 lg:gap-8 mb-12">
                             <div className="flex-shrink-0">
-                                <label className="block text-sm font-handwritten text-base lg:text-lg mb-2">Variants available</label>
+                                <label className="block text-sm font-medium text-base lg:text-lg mb-2">Variants available</label>
                                 <div className="flex items-center border-2 border-primary rounded-full px-2 w-28 lg:w-32 justify-between">
                                     <button
                                         onClick={() => handleQuantityChange(-1)}
@@ -172,7 +172,7 @@ const ProductDetails = () => {
 
                             <div className="flex-shrink-0">
                                 <Button
-                                    className="px-6 lg:px-8 py-5 lg:py-6 rounded-full font-handwritten text-lg lg:text-xl"
+                                    className="px-6 lg:px-8 py-5 lg:py-6 rounded-full font-bold text-lg lg:text-xl"
                                     onClick={handleAddToCart}
                                 >
                                     Add to cart
@@ -181,7 +181,7 @@ const ProductDetails = () => {
                         </div>
 
                         {/* Footer Info */}
-                        <div className="space-y-4 text-sm font-handwritten text-base lg:text-lg text-text-secondary">
+                        <div className="space-y-4 text-sm font-sans text-base lg:text-lg text-text-secondary">
                             <p>Terms and conditions</p>
                             <p>30 day money back guarantee</p>
                             <p>shipping 2-3 Business days</p>
