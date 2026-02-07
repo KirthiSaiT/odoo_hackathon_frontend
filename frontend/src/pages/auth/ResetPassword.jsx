@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useResetPasswordMutation } from '../../services/authApi';
 import {
@@ -29,6 +29,9 @@ const ResetPassword = () => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  
+  // Prevent double submission
+  const isSubmitting = useRef(false);
 
   useEffect(() => {
     if (!token) {
@@ -52,6 +55,12 @@ const ResetPassword = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    
+    // Prevent double submission
+    if (isSubmitting.current) {
+      return;
+    }
+    
     setError('');
     setSuccess('');
 
@@ -71,6 +80,8 @@ const ResetPassword = () => {
       return;
     }
 
+    isSubmitting.current = true;
+
     try {
       await resetPassword({
         token,
@@ -79,6 +90,7 @@ const ResetPassword = () => {
       setSuccess('Password reset successfully! Redirecting to login...');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
+      isSubmitting.current = false;
       setError(err?.data?.detail || 'Failed to reset password. Please try again.');
     }
   };
