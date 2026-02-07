@@ -25,6 +25,7 @@ import {
   useGetUsersQuery, 
   useCreateUserMutation, 
   useUpdateUserMutation,
+  useDeleteUserMutation,
   useGetLookupsQuery 
 } from '../../services/adminApi';
 
@@ -46,6 +47,7 @@ const Users = () => {
   const { data: lookups } = useGetLookupsQuery();
   const [createUser, { isLoading: isCreating }] = useCreateUserMutation();
   const [updateUser, { isLoading: isUpdating }] = useUpdateUserMutation();
+  const [deleteUser, { isLoading: isDeleting }] = useDeleteUserMutation();
 
   const handleOpenModal = (user = null) => {
     if (user) {
@@ -97,10 +99,15 @@ const Users = () => {
     }
   };
 
-  const handleDelete = (userId) => {
+  const handleDelete = async (userId) => {
     if (window.confirm('Are you sure you want to delete this user?')) {
-      alert("Delete functionality coming soon");
-      // deleteUser(userId);
+      try {
+        await deleteUser(userId).unwrap();
+        alert('User deleted successfully');
+      } catch (err) {
+        console.error('Failed to delete user:', err);
+        alert(err?.data?.detail || 'Failed to delete user');
+      }
     }
   };
 
