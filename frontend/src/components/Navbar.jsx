@@ -7,6 +7,8 @@ import {
     DropdownMenuContent,
     DropdownMenuItem,
 } from './ui/dropdown-menu';
+import logo from '../assets/odoo_logo.png';
+
 
 const Navbar = () => {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -53,10 +55,10 @@ const Navbar = () => {
                     {/* Left: Company Logo and Navigation Links */}
                     <div className="flex items-center space-x-8">
                         <div
-                            className="border-2 border-primary rounded-lg px-6 py-3 cursor-pointer"
+                            className="cursor-pointer"
                             onClick={() => navigate('/home')}
                         >
-                            <span className="text-primary font-medium text-lg">Company Logo</span>
+                            <img src={logo} alt="Company Logo" className="h-10 w-auto" />
                         </div>
 
                         <span
