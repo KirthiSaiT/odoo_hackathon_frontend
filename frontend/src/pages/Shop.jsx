@@ -3,17 +3,21 @@ import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { Button } from '../components/ui/button';
 import { Search } from '@mui/icons-material';
-import { useGetProductsQuery } from '../services/productsApi';
+import { useGetProductsQuery, useGetCategoriesQuery } from '../services/productsApi';
 import { useAddToCartMutation } from '../services/cartApi';
 import Toast from '../components/ui/Toast';
 
 const Shop = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
-    const [priceRange, setPriceRange] = useState(1000);
+    const [priceRange, setPriceRange] = useState(100000);
     const [selectedCategories, setSelectedCategories] = useState([]);
     const [showToast, setShowToast] = useState(false);
     const [toastMessage, setToastMessage] = useState('');
+
+    // Fetch Categories
+    const { data: categoriesData, isLoading: isCategoriesLoading } = useGetCategoriesQuery();
+    const dynamicCategories = ["All Products", ...(categoriesData || [])];
 
     // Fetch Products from API
     const { data: productsData, isLoading, isError } = useGetProductsQuery({
@@ -24,7 +28,48 @@ const Shop = () => {
 
     const [addToCart] = useAddToCartMutation();
 
-    const products = productsData?.items || [];
+    const [sortBy, setSortBy] = useState('Newest Arrivals');
+
+    // Client-side filtering and sorting
+    const allProducts = productsData?.items || [];
+    const products = allProducts
+        .filter(product => {
+            // Price Filter
+            const priceMatch = product.sales_price <= priceRange;
+            
+            // Category Filter
+            const isAllSelected = selectedCategories.includes("All Products") || selectedCategories.length === 0;
+            const categoryMatch = isAllSelected || (product.category && selectedCategories.includes(product.category));
+
+            return priceMatch && categoryMatch;
+        })
+        .sort((a, b) => {
+            switch (sortBy) {
+                case 'Price: Low to High':
+                    return a.sales_price - b.sales_price;
+                case 'Price: High to Low':
+                    return b.sales_price - a.sales_price;
+                case 'Newest Arrivals':
+                default:
+                    return new Date(b.created_at) - new Date(a.created_at);
+            }
+        });
+
+    const handleCategoryChange = (category) => {
+        setSelectedCategories(prev => {
+            if (category === "All Products") {
+                 return ["All Products"];
+            }
+            
+            let newCategories = prev.filter(c => c !== "All Products");
+
+            if (newCategories.includes(category)) {
+                return newCategories.filter(c => c !== category);
+            } else {
+                return [...newCategories, category];
+            }
+        });
+    };
 
     const handleAddToCart = async (productId) => {
         try {
@@ -42,10 +87,6 @@ const Shop = () => {
         }
     };
 
-    const categories = [
-        "All Products", "Electronics", "Clothing", "Home & Garden", "Sports", "Toys", "Goods", "Service"
-    ];
-
     return (
         <div className="min-h-screen bg-gray-50 text-text-primary font-sans">
             {/* Main Content */}
@@ -56,18 +97,24 @@ const Shop = () => {
                     <div className="bg-white rounded-lg shadow-sm border border-border-light p-4">
                         <h3 className="text-lg font-semibold text-text-primary mb-4">Category</h3>
                         <div className="space-y-2">
-                            {categories.map((cat) => (
-                                <div key={cat} className="flex items-center">
-                                    <input
-                                        type="checkbox"
-                                        id={cat}
-                                        className="mr-3 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
-                                    />
-                                    <label htmlFor={cat} className="text-sm text-text-secondary cursor-pointer hover:text-primary transition-colors">
-                                        {cat}
-                                    </label>
-                                </div>
-                            ))}
+                             {isCategoriesLoading ? (
+                                <div className="text-sm text-gray-500">Loading categories...</div>
+                             ) : (
+                                dynamicCategories.map((cat) => (
+                                    <div key={cat} className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            id={cat}
+                                            checked={selectedCategories.includes(cat) || (selectedCategories.length === 0 && cat === "All Products")}
+                                            onChange={() => handleCategoryChange(cat)}
+                                            className="mr-3 h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
+                                        />
+                                        <label htmlFor={cat} className="text-sm text-text-secondary cursor-pointer hover:text-primary transition-colors">
+                                            {cat}
+                                        </label>
+                                    </div>
+                                ))
+                             )}
                         </div>
                     </div>
 
@@ -77,9 +124,9 @@ const Shop = () => {
                         <input
                             type="range"
                             min="0"
-                            max="5000"
+                            max="100000"
                             value={priceRange}
-                            onChange={(e) => setPriceRange(e.target.value)}
+                            onChange={(e) => setPriceRange(Number(e.target.value))}
                             className="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer accent-primary mb-2"
                         />
                         <div className="flex justify-between text-sm text-text-secondary font-medium">
@@ -111,7 +158,11 @@ const Shop = () => {
                         </div>
                         <div className="flex items-center gap-3">
                             <span className="text-sm font-medium text-text-secondary">Sort By:</span>
-                            <select className="px-3 py-2 rounded-lg border border-border-light bg-white text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary">
+                            <select 
+                                value={sortBy} 
+                                onChange={(e) => setSortBy(e.target.value)}
+                                className="px-3 py-2 rounded-lg border border-border-light bg-white text-sm text-text-primary focus:outline-none focus:ring-2 focus:ring-primary"
+                            >
                                 <option>Price: Low to High</option>
                                 <option>Price: High to Low</option>
                                 <option>Newest Arrivals</option>
