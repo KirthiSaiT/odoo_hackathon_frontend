@@ -1,8 +1,14 @@
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 
 const Orders = () => {
     const navigate = useNavigate();
+    const [page, setPage] = useState(0);
+
+    const handleOrderClick = (orderId) => {
+        navigate(`/orders/${orderId}`);
+    };
 
     // Mock orders data - replace with actual API data
     const orders = [
@@ -13,9 +19,7 @@ const Orders = () => {
         { id: 'SO005', date: '03/02/2026', amount: 1450 },
     ];
 
-    const handleOrderClick = (orderId) => {
-        navigate(`/order-details/${orderId}`);
-    };
+
 
     return (
         <div className="min-h-screen bg-white">
@@ -59,7 +63,8 @@ const Orders = () => {
                                 {orders.map((order, index) => (
                                     <tr
                                         key={order.id}
-                                        className="hover:bg-cyan-50 transition-colors duration-150"
+                                        onClick={() => handleOrderClick(order.id)}
+                                        className="hover:bg-cyan-50 transition-colors duration-150 cursor-pointer"
                                     >
                                         <td className="px-8 py-4">
                                             <button

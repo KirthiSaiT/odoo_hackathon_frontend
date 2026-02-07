@@ -52,27 +52,34 @@ const Navbar = () => {
                 <div className="flex items-center justify-between">
                     {/* Left: Company Logo and Navigation Links */}
                     <div className="flex items-center space-x-8">
-                        <div className="border-2 border-primary rounded-lg px-6 py-3">
+                        <div
+                            className="border-2 border-primary rounded-lg px-6 py-3 cursor-pointer"
+                            onClick={() => navigate('/home')}
+                        >
                             <span className="text-primary font-medium text-lg">Company Logo</span>
                         </div>
 
-                        <a
-                            href="/home"
-                            className="text-text-primary font-medium hover:text-primary transition-colors"
+                        <span
+                            onClick={() => navigate('/home')}
+                            className="text-text-primary font-medium hover:text-primary transition-colors cursor-pointer"
                         >
                             Home
-                        </a>
-                        <a
-                            href="/shop"
-                            className="text-text-primary font-medium hover:text-primary transition-colors"
+                        </span>
+                        <span
+                            onClick={() => navigate('/shop')}
+                            className="text-text-primary font-medium hover:text-primary transition-colors cursor-pointer"
                         >
                             Shop
-                        </a>
+                        </span>
                     </div>
 
                     {/* Right: Cart and Profile */}
                     <div className="flex items-center space-x-4">
-                        <Button variant="outline" size="default">
+                        <Button
+                            variant="outline"
+                            size="default"
+                            onClick={() => navigate('/cart')}
+                        >
                             Cart
                         </Button>
 

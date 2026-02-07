@@ -1,8 +1,10 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { Button } from '../components/ui/button';
 
 const Shop = () => {
+    const navigate = useNavigate();
     const [priceRange, setPriceRange] = useState(1000);
     const [selectedCategories, setSelectedCategories] = useState([]);
 
@@ -112,7 +114,11 @@ const Shop = () => {
                                             <span className="block text-xl font-bold text-primary">${product.price}</span>
                                             <span className="text-[10px] text-text-secondary uppercase tracking-wider">{product.billing}</span>
                                         </div>
-                                        <Button size="sm" className="h-8 px-3 text-xs">
+                                        <Button
+                                            size="sm"
+                                            className="h-8 px-3 text-xs"
+                                            onClick={() => navigate(`/shop/${product.id}`)}
+                                        >
                                             Add
                                         </Button>
                                     </div>
