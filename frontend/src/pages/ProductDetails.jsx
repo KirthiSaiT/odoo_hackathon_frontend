@@ -3,31 +3,28 @@ import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { Button } from '../components/ui/button';
 import Toast from '../components/ui/Toast';
+import { useGetProductByIdQuery } from '../services/productsApi';
 
 const ProductDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
     const [selectedImage, setSelectedImage] = useState(0);
-    const [selectedPlan, setSelectedPlan] = useState('monthly');
+    const [selectedPlan, setSelectedPlan] = useState(null); // Changed default to null
     const [quantity, setQuantity] = useState(1);
     const [showToast, setShowToast] = useState(false);
 
-    // Mock product data (in a real app, fetch based on ID)
-    const product = {
-        id: id,
-        name: "Premium Headphones",
-        category: "Electronics",
-        images: [
-            "image1", // Placeholders
-            "image2",
-            "image3"
-        ],
-        pricing: {
-            monthly: { price: 1200, label: '1200/month', save: null },
-            sixMonths: { price: 5760, label: '960/month', save: '20%' },
-            yearly: { price: 10080, label: '840/month', save: '30%' }
-        }
-    };
+    // Fetch Product Data
+    const { data: product, isLoading, isError } = useGetProductByIdQuery(id);
+
+    if (isLoading) return <div className="text-center py-20">Loading product details...</div>;
+    if (isError || !product) return <div className="text-center py-20 text-red-500">Product not found.</div>;
+
+    // Prepare images array (Main + Sub)
+    const images = [product.main_image, ...(product.sub_images || [])].filter(Boolean);
+    // If no images, provide a placeholder or handled in UI
+
+    // Sort recurring plans by price or some logic if needed
+    const plans = product.recurring_plans || [];
 
     const handleQuantityChange = (delta) => {
         setQuantity(prev => Math.max(1, prev + delta));
@@ -53,23 +50,33 @@ const ProductDetails = () => {
                         <div className="flex gap-4 lg:gap-6">
                             {/* Thumbnails */}
                             <div className="flex flex-col gap-4 w-16 lg:w-20 flex-shrink-0">
-                                {product.images.map((img, index) => (
-                                    <div
-                                        key={index}
-                                        onClick={() => setSelectedImage(index)}
-                                        className={`aspect-square border-2 rounded-lg cursor-pointer flex items-center justify-center bg-background-paper transition-colors ${selectedImage === index
-                                            ? 'border-primary'
-                                            : 'border-primary/30 hover:border-primary/60'
-                                            }`}
-                                    >
-                                        <span className="text-xs text-text-secondary">img{index + 1}</span>
+                                {images.length > 1 ? (
+                                    images.slice(1).map((img, index) => (
+                                        <div
+                                            key={index}
+                                            onClick={() => setSelectedImage(index + 1)}
+                                            className={`aspect-square border-2 rounded-lg cursor-pointer flex items-center justify-center bg-background-paper transition-colors overflow-hidden ${selectedImage === (index + 1)
+                                                ? 'border-primary'
+                                                : 'border-primary/30 hover:border-primary/60'
+                                                }`}
+                                        >
+                                            <img src={img} alt={`Thumbnail ${index + 1}`} className="w-full h-full object-cover" />
+                                        </div>
+                                    ))
+                                ) : (
+                                    <div className="aspect-square border-2 rounded-lg flex items-center justify-center bg-gray-100 text-gray-400 text-xs">
+                                        No Subs
                                     </div>
-                                ))}
+                                )}
                             </div>
 
                             {/* Main Image */}
-                            <div className="flex-1 aspect-[4/3] border-2 border-primary rounded-lg bg-background-paper flex items-center justify-center">
-                                <span className="text-text-secondary text-sm lg:text-lg">select image in big size</span>
+                            <div className="flex-1 aspect-[4/3] border-2 border-primary rounded-lg bg-background-paper flex items-center justify-center overflow-hidden">
+                                {images.length > 0 ? (
+                                    <img src={images[selectedImage]} alt={product.name} className="w-full h-full object-cover" />
+                                ) : (
+                                    <span className="text-text-secondary text-sm lg:text-lg">No image available</span>
+                                )}
                             </div>
                         </div>
                     </div>
@@ -80,49 +87,34 @@ const ProductDetails = () => {
                         <div className="border-b border-primary/30 mb-6"></div>
 
                         {/* Pricing Table */}
+                        {/* Pricing Table */}
                         <div className="border-2 border-primary rounded-xl overflow-hidden mb-6 bg-background-paper">
-                            {/* Monthly */}
-                            <div
-                                onClick={() => setSelectedPlan('monthly')}
-                                className={`grid grid-cols-3 gap-2 p-3 lg:p-4 cursor-pointer transition-colors border-b border-primary/20 ${selectedPlan === 'monthly' ? 'bg-primary/5' : 'hover:bg-primary/5'
-                                    }`}
-                            >
-                                <span className="font-medium text-sm lg:text-base">Monthly</span>
-                                <span className="font-bold text-center text-sm lg:text-base">{product.pricing.monthly.price}</span>
-                                <span className="text-right text-text-secondary text-sm lg:text-base">{product.pricing.monthly.label}</span>
-                            </div>
-
-                            {/* 6 Months */}
-                            <div
-                                onClick={() => setSelectedPlan('sixMonths')}
-                                className={`grid grid-cols-3 gap-2 p-3 lg:p-4 cursor-pointer transition-colors border-b border-primary/20 ${selectedPlan === 'sixMonths' ? 'bg-primary/5' : 'hover:bg-primary/5'
-                                    }`}
-                            >
-                                <span className="font-medium text-sm lg:text-base">6 Months</span>
-                                <span className="font-bold text-center text-sm lg:text-base">{product.pricing.sixMonths.price}</span>
-                                <div className="text-right flex justify-end items-center gap-2">
-                                    <span className="text-text-secondary text-sm lg:text-base">{product.pricing.sixMonths.label}</span>
-                                    <span className="text-[10px] border border-primary text-primary px-1 py-0.5 rounded">20%</span>
+                            {plans.length > 0 ? (
+                                plans.map((plan, index) => (
+                                    <div
+                                        key={index}
+                                        onClick={() => setSelectedPlan(plan.plan_name)}
+                                        className={`grid grid-cols-3 gap-2 p-3 lg:p-4 cursor-pointer transition-colors border-b border-primary/20 last:border-b-0 ${selectedPlan === plan.plan_name ? 'bg-primary/5' : 'hover:bg-primary/5'
+                                            }`}
+                                    >
+                                        <span className="font-medium text-sm lg:text-base">{plan.plan_name}</span>
+                                        <span className="font-bold text-center text-sm lg:text-base">${plan.price.toFixed(2)}</span>
+                                        <div className="text-right flex justify-end items-center gap-2">
+                                            {/* Logic for showing save % or label can be added here if needed */}
+                                            <span className="text-text-secondary text-sm lg:text-base">min qty: {plan.min_qty}</span>
+                                        </div>
+                                    </div>
+                                ))
+                            ) : (
+                                <div className="p-4 flex justify-between items-center">
+                                    <span className="font-medium text-lg">One-time Purchase</span>
+                                    <span className="font-bold text-xl text-primary">${product.sales_price?.toFixed(2)}</span>
                                 </div>
-                            </div>
-
-                            {/* Yearly */}
-                            <div
-                                onClick={() => setSelectedPlan('yearly')}
-                                className={`grid grid-cols-3 gap-2 p-3 lg:p-4 cursor-pointer transition-colors ${selectedPlan === 'yearly' ? 'bg-primary/5' : 'hover:bg-primary/5'
-                                    }`}
-                            >
-                                <span className="font-medium text-sm lg:text-base">Yearly</span>
-                                <span className="font-bold text-center text-sm lg:text-base">{product.pricing.yearly.price}</span>
-                                <div className="text-right flex justify-end items-center gap-2">
-                                    <span className="text-text-secondary text-sm lg:text-base">{product.pricing.yearly.label}</span>
-                                    <span className="text-[10px] border border-primary text-primary px-1 py-0.5 rounded">30%</span>
-                                </div>
-                            </div>
+                            )}
                         </div>
 
                         <div className="text-sm font-handwritten text-text-secondary mb-8 text-lg lg:text-xl">
-                            Product category
+                            {product.product_type}
                         </div>
 
                         <div className="border-b border-primary/30 mb-8"></div>

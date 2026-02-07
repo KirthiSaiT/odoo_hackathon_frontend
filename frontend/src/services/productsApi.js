@@ -6,13 +6,6 @@ export const productsApi = createApi({
     reducerPath: 'productsApi',
     baseQuery: fetchBaseQuery({
         baseUrl: `${baseUrl}/api/products`,
-        prepareHeaders: (headers) => {
-            const token = sessionStorage.getItem('access_token');
-            if (token) {
-                headers.set('authorization', `Bearer ${token}`);
-            }
-            return headers;
-        },
     }),
     tagTypes: ['Products'],
     endpoints: (builder) => ({
@@ -28,14 +21,24 @@ export const productsApi = createApi({
             query: () => '/recurring-templates',
         }),
         createProduct: builder.mutation({
-            query: (newProduct) => ({
-                url: '/',
-                method: 'POST',
-                body: newProduct,
-            }),
+            query: (newProduct) => {
+                const token = sessionStorage.getItem('access_token');
+                return {
+                    url: '/',
+                    method: 'POST',
+                    body: newProduct,
+                    headers: token ? {
+                        'authorization': `Bearer ${token}`
+                    } : {}
+                };
+            },
             invalidatesTags: ['Products'],
+        }),
+        getProductById: builder.query({
+            query: (id) => `/${id}`,
+            providesTags: (result, error, id) => [{ type: 'Products', id }],
         }),
     }),
 });
 
-export const { useGetProductsQuery, useCreateProductMutation, useGetRecurringTemplatesQuery } = productsApi;
+export const { useGetProductsQuery, useCreateProductMutation, useGetRecurringTemplatesQuery, useGetProductByIdQuery } = productsApi;

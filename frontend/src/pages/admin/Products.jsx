@@ -44,10 +44,17 @@ const Products = () => {
         sales_price: '',
         cost_price: '',
         tax: '',
+        main_image: ''
     });
 
-    // Recurring Plans State
-    const [recurringPlans, setRecurringPlans] = useState([]);
+    // Sub Images State
+    const [subImages, setSubImages] = useState(['', '', '']);
+
+    const handleSubImageChange = (index, value) => {
+        const newImages = [...subImages];
+        newImages[index] = value;
+        setSubImages(newImages);
+    };
 
     // Variants State
     const [variants, setVariants] = useState([]);
@@ -67,6 +74,9 @@ const Products = () => {
         newVariants[index][field] = value;
         setVariants(newVariants);
     };
+
+    // Recurring Plans State
+    const [recurringPlans, setRecurringPlans] = useState([]);
 
     const handleInputChange = (e) => {
         const { name, value } = e.target;
@@ -132,6 +142,8 @@ const Products = () => {
                 sales_price: parseFloat(formData.sales_price) || 0,
                 cost_price: parseFloat(formData.cost_price) || 0,
                 tax: formData.tax,
+                main_image: formData.main_image,
+                sub_images: subImages.filter(img => img.trim() !== ''),
                 recurring_plans: recurringPlans.map(plan => ({
                     plan_name: plan.plan_name,
                     price: plan.price,
@@ -156,9 +168,11 @@ const Products = () => {
                 sales_price: '',
                 cost_price: '',
                 tax: '',
+                main_image: ''
             });
             setRecurringPlans([]);
             setVariants([]);
+            setSubImages(['', '', '']);
             refetch();
         } catch (error) {
             console.error("Failed to create product", error);
@@ -349,6 +363,43 @@ const Products = () => {
                                         className="flex-1 p-2 border-b border-border-light focus:border-primary outline-none transition-colors"
                                         placeholder="Ex: 15%"
                                     />
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <label className="w-32 text-sm font-medium text-text-primary">Main Image URL</label>
+                                    <input
+                                        type="text"
+                                        name="main_image"
+                                        value={formData.main_image}
+                                        onChange={handleInputChange}
+                                        className="flex-1 p-2 border-b border-border-light focus:border-primary outline-none transition-colors"
+                                        placeholder="https://example.com/image.jpg"
+                                    />
+                                </div>
+                                <div className="flex items-center gap-4">
+                                    <label className="w-32 text-sm font-medium text-text-primary">Sub Images</label>
+                                    <div className="flex-1 space-y-2">
+                                        <input
+                                            type="text"
+                                            value={subImages[0] || ''}
+                                            onChange={(e) => handleSubImageChange(0, e.target.value)}
+                                            className="w-full p-2 border-b border-border-light focus:border-primary outline-none transition-colors"
+                                            placeholder="Sub Image URL 1"
+                                        />
+                                        <input
+                                            type="text"
+                                            value={subImages[1] || ''}
+                                            onChange={(e) => handleSubImageChange(1, e.target.value)}
+                                            className="w-full p-2 border-b border-border-light focus:border-primary outline-none transition-colors"
+                                            placeholder="Sub Image URL 2"
+                                        />
+                                        <input
+                                            type="text"
+                                            value={subImages[2] || ''}
+                                            onChange={(e) => handleSubImageChange(2, e.target.value)}
+                                            className="w-full p-2 border-b border-border-light focus:border-primary outline-none transition-colors"
+                                            placeholder="Sub Image URL 3"
+                                        />
+                                    </div>
                                 </div>
                             </div>
                         </div>

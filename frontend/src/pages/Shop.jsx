@@ -108,9 +108,26 @@ const Shop = () => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                             {products.map((product) => (
                                 <div key={product.id} className="bg-white rounded-lg shadow-sm border border-border-light p-4 flex flex-col hover:shadow-md transition-all duration-200 group">
-                                    <div className="aspect-square bg-gray-100 rounded-lg mb-4 flex items-center justify-center text-text-secondary group-hover:bg-gray-50 transition-colors">
-                                        {/* Placeholder for Product Image */}
-                                        <span className="text-sm font-medium text-gray-400">
+                                    <div className="aspect-square bg-gray-100 rounded-lg mb-4 flex items-center justify-center text-text-secondary group-hover:bg-gray-50 transition-colors overflow-hidden">
+                                        {/* Product Image or Placeholder */}
+                                        {product.main_image ? (
+                                            <img
+                                                src={product.main_image}
+                                                alt={product.name}
+                                                className="w-full h-full object-cover"
+                                                onError={(e) => {
+                                                    e.target.onerror = null;
+                                                    e.target.style.display = 'none';
+                                                    e.target.nextSibling.style.display = 'block';
+                                                }}
+                                            />
+                                        ) : (
+                                            <span className="text-sm font-medium text-gray-400">
+                                                {product.name.charAt(0)}
+                                            </span>
+                                        )}
+                                        {/* Fallback span if image fails (hidden by default if image exists) */}
+                                        <span className="text-sm font-medium text-gray-400 hidden">
                                             {product.name.charAt(0)}
                                         </span>
                                     </div>
