@@ -10,6 +10,7 @@ import {
 
 const Navbar = () => {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
+    const [closeTimeout, setCloseTimeout] = useState(null);
     const navigate = useNavigate();
 
     const handleSignOut = () => {
@@ -20,19 +21,41 @@ const Navbar = () => {
         navigate('/login');
     };
 
+    const handleUserDetails = () => {
+        navigate('/user-details');
+        setIsProfileOpen(false);
+    };
+
+    const handleOrders = () => {
+        navigate('/orders');
+        setIsProfileOpen(false);
+    };
+
+    const handleMouseEnter = () => {
+        if (closeTimeout) {
+            clearTimeout(closeTimeout);
+            setCloseTimeout(null);
+        }
+        setIsProfileOpen(true);
+    };
+
+    const handleMouseLeave = () => {
+        const timeout = setTimeout(() => {
+            setIsProfileOpen(false);
+        }, 300); // 300ms delay before closing
+        setCloseTimeout(timeout);
+    };
+
     return (
         <nav className="w-full border-2 border-primary bg-background-paper">
             <div className="max-w-7xl mx-auto px-6 py-4">
                 <div className="flex items-center justify-between">
-                    {/* Left: Company Logo */}
-                    <div className="flex items-center">
+                    {/* Left: Company Logo and Navigation Links */}
+                    <div className="flex items-center space-x-8">
                         <div className="border-2 border-primary rounded-lg px-6 py-3">
                             <span className="text-primary font-medium text-lg">Company Logo</span>
                         </div>
-                    </div>
 
-                    {/* Center: Navigation Links */}
-                    <div className="flex items-center space-x-8">
                         <a
                             href="/home"
                             className="text-text-primary font-medium hover:text-primary transition-colors"
@@ -44,12 +67,6 @@ const Navbar = () => {
                             className="text-text-primary font-medium hover:text-primary transition-colors"
                         >
                             Shop
-                        </a>
-                        <a
-                            href="/my-account"
-                            className="text-text-primary font-medium hover:text-primary transition-colors"
-                        >
-                            My Account
                         </a>
                     </div>
 
@@ -64,14 +81,24 @@ const Navbar = () => {
                                 <Button
                                     variant="outline"
                                     size="default"
-                                    onClick={() => setIsProfileOpen(!isProfileOpen)}
+                                    onMouseEnter={handleMouseEnter}
+                                    onMouseLeave={handleMouseLeave}
                                 >
                                     My Profile
                                 </Button>
                             </DropdownMenuTrigger>
 
                             {isProfileOpen && (
-                                <DropdownMenuContent>
+                                <DropdownMenuContent
+                                    onMouseEnter={handleMouseEnter}
+                                    onMouseLeave={handleMouseLeave}
+                                >
+                                    <DropdownMenuItem onClick={handleUserDetails}>
+                                        User details
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem onClick={handleOrders}>
+                                        Orders
+                                    </DropdownMenuItem>
                                     <DropdownMenuItem onClick={handleSignOut}>
                                         Sign Out
                                     </DropdownMenuItem>

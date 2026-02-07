@@ -7,6 +7,9 @@ import {
   ResetPassword,
   VerifyEmail,
   Home,
+  UserDetails,
+  Orders,
+  Shop,
 } from './pages';
 import ProtectedRoute from './components/ProtectedRoute';
 
@@ -75,6 +78,9 @@ function App() {
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
             <Route path="/home" element={<Home />} />
+            <Route path="/user-details" element={<UserDetails />} />
+            <Route path="/orders" element={<Orders />} />
+            <Route path="/shop" element={<Shop />} />
           </Route>
 
           {/* Default Redirect */}
