@@ -4,6 +4,7 @@ import Navbar from '../components/Navbar';
 import { Button } from '../components/ui/button';
 import Toast from '../components/ui/Toast';
 import { useGetProductByIdQuery } from '../services/productsApi';
+import { useAddToCartMutation } from '../services/cartApi';
 
 const ProductDetails = () => {
     const { id } = useParams();
@@ -12,9 +13,13 @@ const ProductDetails = () => {
     const [selectedPlan, setSelectedPlan] = useState(null); // Changed default to null
     const [quantity, setQuantity] = useState(1);
     const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
 
     // Fetch Product Data
     const { data: product, isLoading, isError } = useGetProductByIdQuery(id);
+
+    // Add to Cart Mutation
+    const [addToCart] = useAddToCartMutation();
 
     if (isLoading) return <div className="text-center py-20">Loading product details...</div>;
     if (isError || !product) return <div className="text-center py-20 text-red-500">Product not found.</div>;
@@ -28,6 +33,32 @@ const ProductDetails = () => {
 
     const handleQuantityChange = (delta) => {
         setQuantity(prev => Math.max(1, prev + delta));
+    };
+
+    const handleAddToCart = async () => {
+        try {
+            await addToCart({
+                product_id: parseInt(id),
+                quantity: quantity,
+                selected_plan_name: selectedPlan
+            }).unwrap();
+
+            setToastMessage('Product added to cart!');
+            setShowToast(true);
+
+            // Navigate to cart after 1 second
+            setTimeout(() => {
+                navigate('/cart');
+            }, 1000);
+        } catch (error) {
+            console.error('Failed to add to cart:', error);
+            if (error.status === 401) {
+                setToastMessage('Please login to add items to cart');
+            } else {
+                setToastMessage('Failed to add to cart');
+            }
+            setShowToast(true);
+        }
     };
 
     return (
@@ -143,10 +174,7 @@ const ProductDetails = () => {
                             <div className="flex-shrink-0">
                                 <Button
                                     className="px-6 lg:px-8 py-5 lg:py-6 rounded-full font-handwritten text-lg lg:text-xl"
-                                    onClick={() => {
-                                        setShowToast(true);
-                                        // In a real app, dispatch to Redux here
-                                    }}
+                                    onClick={handleAddToCart}
                                 >
                                     Add to cart
                                 </Button>
@@ -163,7 +191,7 @@ const ProductDetails = () => {
                 </div>
 
                 <Toast
-                    message="ur product has been added"
+                    message={toastMessage}
                     isVisible={showToast}
                     onClose={() => setShowToast(false)}
                 />

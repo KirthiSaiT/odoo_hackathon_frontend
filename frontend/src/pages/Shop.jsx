@@ -4,12 +4,16 @@ import Navbar from '../components/Navbar';
 import { Button } from '../components/ui/button';
 import { Search } from '@mui/icons-material';
 import { useGetProductsQuery } from '../services/productsApi';
+import { useAddToCartMutation } from '../services/cartApi';
+import Toast from '../components/ui/Toast';
 
 const Shop = () => {
     const navigate = useNavigate();
     const [searchTerm, setSearchTerm] = useState('');
     const [priceRange, setPriceRange] = useState(1000);
     const [selectedCategories, setSelectedCategories] = useState([]);
+    const [showToast, setShowToast] = useState(false);
+    const [toastMessage, setToastMessage] = useState('');
 
     // Fetch Products from API
     const { data: productsData, isLoading, isError } = useGetProductsQuery({
@@ -18,7 +22,25 @@ const Shop = () => {
         search: searchTerm
     });
 
+    const [addToCart] = useAddToCartMutation();
+
     const products = productsData?.items || [];
+
+    const handleAddToCart = async (productId) => {
+        try {
+            await addToCart({ product_id: productId, quantity: 1 }).unwrap();
+            setToastMessage('Product added to cart!');
+            setShowToast(true);
+        } catch (error) {
+            console.error('Failed to add to cart:', error);
+            if (error.status === 401) {
+                setToastMessage('Please login to add items to cart');
+            } else {
+                setToastMessage('Failed to add to cart');
+            }
+            setShowToast(true);
+        }
+    };
 
     const categories = [
         "All Products", "Electronics", "Clothing", "Home & Garden", "Sports", "Toys", "Goods", "Service"
@@ -146,9 +168,12 @@ const Shop = () => {
                                             <Button
                                                 size="sm"
                                                 className="h-8 px-4 text-xs font-medium"
-                                                onClick={() => navigate(`/shop/${product.id}`)}
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    navigate(`/shop/${product.id}`);
+                                                }}
                                             >
-                                                Add
+                                                View
                                             </Button>
                                         </div>
                                     </div>
@@ -158,6 +183,12 @@ const Shop = () => {
                     )}
                 </main>
             </div>
+
+            <Toast
+                message={toastMessage}
+                isVisible={showToast}
+                onClose={() => setShowToast(false)}
+            />
         </div>
     );
 };

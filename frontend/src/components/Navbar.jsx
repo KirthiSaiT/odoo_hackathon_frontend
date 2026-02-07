@@ -18,8 +18,10 @@ import {
     Logout,
     AdminPanelSettings,
     Menu,
+    ShoppingCart,
 } from '@mui/icons-material';
 import logo from '../assets/odoo_logo.png';
+import { useGetCartQuery } from '../services/cartApi';
 
 const Navbar = ({ showLogo = true, onMenuClick }) => {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
@@ -28,7 +30,12 @@ const Navbar = ({ showLogo = true, onMenuClick }) => {
     const navigate = useNavigate();
     const dispatch = useDispatch();
     const user = useSelector(selectCurrentUser);
-    
+
+    // Fetch cart data to show item count
+    const { data: cartData } = useGetCartQuery(undefined, {
+        skip: !user, // Only fetch if user is logged in
+    });
+
     // Check if user is admin
     const isAdmin = user?.role === 'ADMIN' || user?.role_id === 1;
 
@@ -78,14 +85,14 @@ const Navbar = ({ showLogo = true, onMenuClick }) => {
                     {/* Left: Logo or Menu Toggle */}
                     <div className="flex items-center gap-4">
                         {onMenuClick && (
-                            <button 
+                            <button
                                 onClick={onMenuClick}
                                 className="lg:hidden p-2 rounded-md hover:bg-gray-100 text-gray-600"
                             >
                                 <Menu style={{ fontSize: 24 }} />
                             </button>
                         )}
-                        
+
                         {showLogo && (
                             <div
                                 className="cursor-pointer"
@@ -115,13 +122,17 @@ const Navbar = ({ showLogo = true, onMenuClick }) => {
 
                     {/* Right: Cart and Profile */}
                     <div className="flex items-center space-x-4">
-                        <Button
-                            variant="outline"
-                            size="default"
+                        <button
                             onClick={() => navigate('/cart')}
+                            className="relative p-2 rounded-lg hover:bg-gray-50 transition-colors"
                         >
-                            Cart
-                        </Button>
+                            <ShoppingCart className="text-text-primary" style={{ fontSize: 24 }} />
+                            {cartData && cartData.total_items > 0 && (
+                                <span className="absolute -top-1 -right-1 bg-primary text-white text-xs font-bold rounded-full h-5 w-5 flex items-center justify-center">
+                                    {cartData.total_items}
+                                </span>
+                            )}
+                        </button>
 
                         <DropdownMenu>
                             <DropdownMenuTrigger>
