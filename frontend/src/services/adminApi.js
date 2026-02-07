@@ -18,7 +18,7 @@ const baseQuery = fetchBaseQuery({
 export const adminApi = createApi({
   reducerPath: 'adminApi',
   baseQuery,
-  tagTypes: ['Employees', 'Lookups', 'Users'],
+  tagTypes: ['Employees', 'Lookups', 'Users', 'Roles', 'UserRights', 'Stats'],
   endpoints: (builder) => ({
     // Get all lookups
     getLookups: builder.query({
@@ -66,6 +66,15 @@ export const adminApi = createApi({
       ],
     }),
 
+    // Delete employee
+    deleteEmployee: builder.mutation({
+      query: (id) => ({
+        url: `/admin/employees/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Employees', 'Stats'],
+    }),
+
     // Get list of users
     getUsers: builder.query({
       query: ({ page = 1, size = 10, search = '' }) => ({
@@ -95,6 +104,15 @@ export const adminApi = createApi({
       invalidatesTags: ['Users', 'Stats'],
     }),
 
+    // Delete user
+    deleteUser: builder.mutation({
+      query: (id) => ({
+        url: `/admin/users/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Users', 'Stats'],
+    }),
+
     // Get user rights
     getUserRights: builder.query({
       query: (userId) => `/admin/rights/user/${userId}`,
@@ -114,7 +132,49 @@ export const adminApi = createApi({
     // Get dashboard stats
     getStats: builder.query({
       query: () => '/admin/stats',
-      providesTags: ['Employees', 'Users'], // Invalidate when entities change
+      providesTags: ['Stats'],
+    }),
+
+    // =====================
+    // ROLES ENDPOINTS
+    // =====================
+
+    // Get list of roles
+    getRoles: builder.query({
+      query: ({ page = 1, size = 100, search = '' }) => ({
+        url: '/admin/roles',
+        params: { page, size, search },
+      }),
+      providesTags: ['Roles'],
+    }),
+
+    // Create role
+    createRole: builder.mutation({
+      query: (data) => ({
+        url: '/admin/roles',
+        method: 'POST',
+        body: data,
+      }),
+      invalidatesTags: ['Roles', 'Stats', 'Lookups'],
+    }),
+
+    // Update role
+    updateRole: builder.mutation({
+      query: ({ id, ...data }) => ({
+        url: `/admin/roles/${id}`,
+        method: 'PUT',
+        body: data,
+      }),
+      invalidatesTags: ['Roles', 'Lookups'],
+    }),
+
+    // Delete role
+    deleteRole: builder.mutation({
+      query: (id) => ({
+        url: `/admin/roles/${id}`,
+        method: 'DELETE',
+      }),
+      invalidatesTags: ['Roles', 'Stats', 'Lookups'],
     }),
   }),
 });
@@ -125,12 +185,19 @@ export const {
   useGetEmployeeQuery,
   useCreateEmployeeMutation,
   useUpdateEmployeeMutation,
+  useDeleteEmployeeMutation,
   useGetUsersQuery,
   useCreateUserMutation,
   useUpdateUserMutation,
+  useDeleteUserMutation,
   useGetUserRightsQuery,
   useSaveUserRightsMutation,
   useGetStatsQuery,
+  useGetRolesQuery,
+  useCreateRoleMutation,
+  useUpdateRoleMutation,
+  useDeleteRoleMutation,
 } = adminApi;
 
 export default adminApi;
+

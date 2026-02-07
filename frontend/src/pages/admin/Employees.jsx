@@ -25,7 +25,8 @@ import {
   useGetEmployeesQuery, 
   useGetLookupsQuery, 
   useCreateEmployeeMutation,
-  useUpdateEmployeeMutation
+  useUpdateEmployeeMutation,
+  useDeleteEmployeeMutation
 } from '../../services/adminApi';
 
 const Employees = () => {
@@ -63,6 +64,7 @@ const Employees = () => {
   const { data: lookups, isLoading: isLookupsLoading } = useGetLookupsQuery();
   const [createEmployee, { isLoading: isCreating }] = useCreateEmployeeMutation();
   const [updateEmployee, { isLoading: isUpdating }] = useUpdateEmployeeMutation();
+  const [deleteEmployee, { isLoading: isDeleting }] = useDeleteEmployeeMutation();
 
   const getLookupName = (list, id) => list?.find(item => item.id === id)?.name || '-';
 
@@ -184,10 +186,15 @@ const Employees = () => {
     }
   };
 
-  const handleDelete = (empId) => {
+  const handleDelete = async (empId) => {
     if (window.confirm('Are you sure you want to delete this employee?')) {
-      // Delete logic (implementation pending)
-       alert('Delete functionality coming soon');
+      try {
+        await deleteEmployee(empId).unwrap();
+        alert('Employee deleted successfully');
+      } catch (err) {
+        console.error('Failed to delete employee:', err);
+        alert(err?.data?.detail || 'Failed to delete employee');
+      }
     }
   };
 

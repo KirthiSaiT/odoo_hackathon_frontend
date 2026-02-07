@@ -19,16 +19,14 @@ import {
   Delete,
   Security,
 } from '@mui/icons-material';
-
-// Mock data - will be replaced with API calls
-const mockRoles = [
-  { role_id: 1, role_name: 'Admin', description: 'Full system access - can manage users, roles, and all settings', is_active: true },
-  { role_id: 2, role_name: 'Employee', description: 'Internal employee - can access assigned modules', is_active: true },
-  { role_id: 3, role_name: 'User', description: 'Portal user - limited access to own data', is_active: true },
-];
+import {
+  useGetRolesQuery,
+  useCreateRoleMutation,
+  useUpdateRoleMutation,
+  useDeleteRoleMutation,
+} from '../../services/adminApi';
 
 const Roles = () => {
-  const [roles, setRoles] = useState(mockRoles);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
   const [formData, setFormData] = useState({
@@ -37,12 +35,20 @@ const Roles = () => {
     is_active: true,
   });
 
+  // API Hooks
+  const { data: rolesData, isLoading, error } = useGetRolesQuery({ page: 1, size: 100 });
+  const [createRole, { isLoading: isCreating }] = useCreateRoleMutation();
+  const [updateRole, { isLoading: isUpdating }] = useUpdateRoleMutation();
+  const [deleteRole, { isLoading: isDeleting }] = useDeleteRoleMutation();
+
+  const roles = rolesData?.items || [];
+
   const handleOpenModal = (role = null) => {
     if (role) {
       setEditingRole(role);
       setFormData({
         role_name: role.role_name,
-        description: role.description,
+        description: role.description || '',
         is_active: role.is_active,
       });
     } else {
@@ -58,21 +64,39 @@ const Roles = () => {
     setFormData({ role_name: '', description: '', is_active: true });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    // TODO: Implement API call
-    console.log('Form data:', formData);
-    handleCloseModal();
+    try {
+      if (editingRole) {
+        await updateRole({
+          id: editingRole.role_id,
+          role_name: formData.role_name,
+          description: formData.description,
+          is_active: formData.is_active,
+        }).unwrap();
+      } else {
+        await createRole(formData).unwrap();
+      }
+      handleCloseModal();
+    } catch (err) {
+      console.error('Failed to save role:', err);
+      alert(err.data?.detail || 'Failed to save role');
+    }
   };
 
-  const handleDelete = (roleId) => {
+  const handleDelete = async (roleId) => {
     // Prevent deleting system roles
     if (roleId <= 3) {
       alert('Cannot delete system roles (Admin, Employee, User)');
       return;
     }
     if (window.confirm('Are you sure you want to delete this role?')) {
-      setRoles(roles.filter((r) => r.role_id !== roleId));
+      try {
+        await deleteRole(roleId).unwrap();
+      } catch (err) {
+        console.error('Failed to delete role:', err);
+        alert(err.data?.detail || 'Failed to delete role');
+      }
     }
   };
 
@@ -87,6 +111,22 @@ const Roles = () => {
     }
   };
 
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-text-secondary">Loading roles...</div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-red-500">Error loading roles: {error.data?.detail || 'Unknown error'}</div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
         {/* Header */}
@@ -95,7 +135,7 @@ const Roles = () => {
             <h1 className="text-2xl font-bold text-text-primary">Role Management</h1>
             <p className="text-text-secondary mt-1">Manage system roles and their descriptions</p>
           </div>
-          <Button onClick={() => handleOpenModal()}>
+          <Button onClick={() => handleOpenModal()} disabled={isCreating}>
             <Add className="mr-2" style={{ fontSize: 20 }} />
             Add Role
           </Button>
@@ -135,7 +175,7 @@ const Roles = () => {
                   </div>
                 </TableCell>
                 <TableCell>
-                  <span className="text-text-secondary">{role.description}</span>
+                  <span className="text-text-secondary">{role.description || '-'}</span>
                 </TableCell>
                 <TableCell>
                   <Badge variant={role.is_active ? 'success' : 'danger'}>
@@ -147,6 +187,7 @@ const Roles = () => {
                     <button
                       onClick={() => handleOpenModal(role)}
                       className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      disabled={isUpdating}
                     >
                       <Edit className="text-text-secondary" style={{ fontSize: 18 }} />
                     </button>
@@ -155,7 +196,7 @@ const Roles = () => {
                       className={`p-2 rounded-lg transition-colors ${
                         role.role_id <= 3 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-red-50'
                       }`}
-                      disabled={role.role_id <= 3}
+                      disabled={role.role_id <= 3 || isDeleting}
                     >
                       <Delete className={role.role_id <= 3 ? 'text-gray-300' : 'text-red-500'} style={{ fontSize: 18 }} />
                     </button>
@@ -213,8 +254,8 @@ const Roles = () => {
             <Button variant="outline" type="button" onClick={handleCloseModal}>
               Cancel
             </Button>
-            <Button type="submit">
-              {editingRole ? 'Update' : 'Create'} Role
+            <Button type="submit" disabled={isCreating || isUpdating}>
+              {isCreating || isUpdating ? 'Saving...' : (editingRole ? 'Update' : 'Create')} Role
             </Button>
           </ModalFooter>
         </form>
