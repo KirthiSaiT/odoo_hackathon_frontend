@@ -28,7 +28,15 @@ export const orderApi = createApi({
             keepUnusedDataFor: 0,
             refetchOnMountOrArgChange: true,
         }),
+        createOrder: builder.mutation({
+            query: (data) => ({
+                url: '/orders',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['Orders'],
+        }),
     }),
 });
 
-export const { useGetDashboardStatsQuery, useCheckoutMutation, useGetOrdersQuery } = orderApi;
+export const { useGetDashboardStatsQuery, useCheckoutMutation, useGetOrdersQuery, useCreateOrderMutation } = orderApi;

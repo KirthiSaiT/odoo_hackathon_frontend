@@ -4,7 +4,9 @@ import Navbar from '../components/Navbar';
 import { Button } from '../components/ui/button';
 import { Delete, Add, Remove, ShoppingCart } from '@mui/icons-material';
 import { useGetCartQuery, useUpdateCartItemMutation, useRemoveFromCartMutation, useClearCartMutation } from '../services/cartApi';
+import { useCreatePaymentIntentMutation } from '../services/paymentApi';
 import Toast from '../components/ui/Toast';
+import PaymentModal from '../components/PaymentModal';
 
 const Cart = () => {
     const navigate = useNavigate();
@@ -15,6 +17,11 @@ const Cart = () => {
     const [updateCartItem] = useUpdateCartItemMutation();
     const [removeFromCart] = useRemoveFromCartMutation();
     const [clearCart] = useClearCartMutation();
+    const [createPaymentIntent, { isLoading: isCreatingIntent }] = useCreatePaymentIntentMutation();
+
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [clientSecret, setClientSecret] = useState('');
+    const [paymentIntentId, setPaymentIntentId] = useState('');
 
     const handleQuantityChange = async (itemId, currentQuantity, delta) => {
         const newQuantity = currentQuantity + delta;
@@ -51,6 +58,29 @@ const Cart = () => {
         } catch (error) {
             console.error('Failed to clear cart:', error);
             setToastMessage('Failed to clear cart');
+            setShowToast(true);
+        }
+    };
+
+    const handleCheckout = async () => {
+        if (!cartData || cartData.items.length === 0) return;
+
+        try {
+            const response = await createPaymentIntent({
+                amount: cartData.total,
+                currency: 'INR',
+                metadata: {
+                    source: "web_cart"
+                }
+            }).unwrap();
+
+            setClientSecret(response.client_secret);
+            setPaymentIntentId(response.payment_intent_id);
+            setIsPaymentModalOpen(true);
+
+        } catch (error) {
+            console.error("Failed to create payment intent:", error);
+            setToastMessage('Failed to initialize payment. Please try again.');
             setShowToast(true);
         }
     };
@@ -190,8 +220,13 @@ const Cart = () => {
                                     </div>
                                 </div>
 
-                                <Button className="w-full mb-3" size="lg">
-                                    Proceed to Checkout
+                                <Button
+                                    className="w-full mb-3"
+                                    size="lg"
+                                    onClick={handleCheckout}
+                                    disabled={isCreatingIntent}
+                                >
+                                    {isCreatingIntent ? 'Processing...' : 'Proceed to Checkout'}
                                 </Button>
 
                                 <Button
@@ -211,6 +246,14 @@ const Cart = () => {
                 message={toastMessage}
                 isVisible={showToast}
                 onClose={() => setShowToast(false)}
+            />
+
+            <PaymentModal
+                isOpen={isPaymentModalOpen}
+                onClose={() => setIsPaymentModalOpen(false)}
+                clientSecret={clientSecret}
+                paymentIntentId={paymentIntentId}
+                amount={cart?.total}
             />
         </div>
     );

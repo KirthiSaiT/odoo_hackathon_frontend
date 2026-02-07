@@ -1,6 +1,7 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { setupListeners } from '@reduxjs/toolkit/query';
 import authReducer from './authSlice';
+import cartReducer from './cartSlice';
 import { authApi } from '../services/authApi';
 import { adminApi } from '../services/adminApi';
 import { profileApi } from '../services/profileApi';
@@ -8,6 +9,7 @@ import { productsApi } from '../services/productsApi';
 import { cartApi } from '../services/cartApi';
 import { subscriptionsApi } from '../services/subscriptionsApi';
 import { orderApi } from '../services/orderApi';
+import { paymentApi } from '../services/paymentApi';
 
 import { isRejectedWithValue } from '@reduxjs/toolkit';
 import { logout } from './authSlice';
@@ -31,6 +33,7 @@ export const rtkQueryErrorLogger = (api) => (next) => (action) => {
 export const store = configureStore({
   reducer: {
     auth: authReducer,
+    cart: cartReducer,
     [authApi.reducerPath]: authApi.reducer,
     [adminApi.reducerPath]: adminApi.reducer,
     [profileApi.reducerPath]: profileApi.reducer,
@@ -38,6 +41,7 @@ export const store = configureStore({
     [cartApi.reducerPath]: cartApi.reducer,
     [subscriptionsApi.reducerPath]: subscriptionsApi.reducer,
     [orderApi.reducerPath]: orderApi.reducer,
+    [paymentApi.reducerPath]: paymentApi.reducer,
   },
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware().concat(
@@ -48,6 +52,7 @@ export const store = configureStore({
       cartApi.middleware,
       subscriptionsApi.middleware,
       orderApi.middleware,
+      paymentApi.middleware,
       rtkQueryErrorLogger
     ),
 });
