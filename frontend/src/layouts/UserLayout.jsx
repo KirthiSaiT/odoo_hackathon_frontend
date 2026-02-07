@@ -8,14 +8,14 @@ import Navbar from '../components/Navbar';
  */
 const UserLayout = () => {
   return (
-    <div className="min-h-screen bg-gray-100 flex flex-col font-sans">
+    <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
       {/* Top Navbar */}
       <div className="sticky top-0 z-10">
         <Navbar showLogo={true} />
       </div>
 
       {/* Page Content */}
-      <main className="flex-1 p-6 overflow-x-hidden overflow-y-auto">
+      <main className="flex-1 overflow-x-hidden overflow-y-auto">
         <Outlet />
       </main>
     </div>
