@@ -6,8 +6,8 @@ export const cartApi = createApi({
     reducerPath: 'cartApi',
     baseQuery: fetchBaseQuery({
         baseUrl: `${baseUrl}/api/cart`,
-        prepareHeaders: (headers) => {
-            const token = sessionStorage.getItem('access_token');
+        prepareHeaders: (headers, { getState }) => {
+            const token = getState().auth.token;
             if (token) {
                 headers.set('authorization', `Bearer ${token}`);
             }

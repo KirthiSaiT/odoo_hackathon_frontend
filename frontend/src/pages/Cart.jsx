@@ -58,7 +58,6 @@ const Cart = () => {
     if (isLoading) {
         return (
             <div className="min-h-screen bg-gray-50">
-                <Navbar />
                 <div className="text-center py-20">Loading cart...</div>
             </div>
         );
@@ -67,7 +66,6 @@ const Cart = () => {
     if (isError) {
         return (
             <div className="min-h-screen bg-gray-50">
-                <Navbar />
                 <div className="text-center py-20 text-red-500">Failed to load cart. Please try again.</div>
             </div>
         );
@@ -77,7 +75,7 @@ const Cart = () => {
 
     return (
         <div className="min-h-screen bg-gray-50 text-text-primary font-sans">
-            <Navbar />
+
 
             <div className="max-w-7xl mx-auto px-6 py-8">
                 {/* Header */}

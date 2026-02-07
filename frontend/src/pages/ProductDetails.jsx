@@ -63,7 +63,6 @@ const ProductDetails = () => {
 
     return (
         <div className="min-h-screen bg-background text-text-primary font-sans">
-            <Navbar />
 
             <div className="max-w-7xl mx-auto px-6 py-8">
                 {/* Breadcrumbs */}

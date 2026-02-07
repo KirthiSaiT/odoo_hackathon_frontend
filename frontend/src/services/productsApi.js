@@ -6,6 +6,13 @@ export const productsApi = createApi({
     reducerPath: 'productsApi',
     baseQuery: fetchBaseQuery({
         baseUrl: `${baseUrl}/api/products`,
+        prepareHeaders: (headers, { getState }) => {
+            const token = getState().auth.token;
+            if (token) {
+                headers.set('authorization', `Bearer ${token}`);
+            }
+            return headers;
+        },
     }),
     tagTypes: ['Products'],
     endpoints: (builder) => ({
@@ -21,17 +28,11 @@ export const productsApi = createApi({
             query: () => '/recurring-templates',
         }),
         createProduct: builder.mutation({
-            query: (newProduct) => {
-                const token = sessionStorage.getItem('access_token');
-                return {
-                    url: '/',
-                    method: 'POST',
-                    body: newProduct,
-                    headers: token ? {
-                        'authorization': `Bearer ${token}`
-                    } : {}
-                };
-            },
+            query: (newProduct) => ({
+                url: '/',
+                method: 'POST',
+                body: newProduct,
+            }),
             invalidatesTags: ['Products'],
         }),
         getProductById: builder.query({
