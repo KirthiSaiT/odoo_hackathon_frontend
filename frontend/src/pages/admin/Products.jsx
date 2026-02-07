@@ -184,7 +184,7 @@ const Products = () => {
     const handleOpenDrawer = () => {
         setIsDrawerOpen(true);
     };
-    
+
     const handleCloseDrawer = () => {
         setIsDrawerOpen(false);
     };
@@ -222,7 +222,7 @@ const Products = () => {
                         <Add className="mr-1" style={{ fontSize: 18 }} />
                         New
                     </Button>
-                    
+
                     <div className="h-8 w-px bg-border-light mx-1"></div>
                     <button className="p-2 text-text-secondary hover:text-red-500 transition-colors rounded hover:bg-red-50" title="Delete">
                         <Delete style={{ fontSize: 20 }} />

@@ -49,6 +49,12 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     },
     {
       type: 'link',
+      label: 'Subscriptions',
+      path: '/admin/subscriptions',
+      icon: ConfirmationNumber,
+    },
+    {
+      type: 'link',
       label: 'Finance',
       path: '/admin/finance',
       icon: AttachMoney,
