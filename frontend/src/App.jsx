@@ -97,7 +97,8 @@ function App() {
               <Route path="/admin/roles" element={<Roles />} />
               <Route path="/admin/role-rights" element={<RoleRights />} />
             </Route>
-            <Route path="/home" element={<Home />} />
+
+            {/* User Routes (Shop, Cart, Orders) */}
             <Route path="/user-details" element={<UserDetails />} />
             <Route path="/orders" element={<Orders />} />
             <Route path="/orders/:id" element={<OrderDetails />} />
