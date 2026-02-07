@@ -14,7 +14,7 @@ import {
 } from '../../components/ui/table';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
-import { Modal, ModalHeader, ModalContent, ModalFooter } from '../../components/ui/modal';
+import Drawer from '../../components/ui/drawer';
 import { Input } from '../../components/ui/input';
 import {
   Add,
@@ -236,81 +236,81 @@ const Users = () => {
         )}
         </div>
 
-      {/* Add/Edit User Modal */}
-      <Modal isOpen={isModalOpen} onClose={handleCloseModal} size="md">
-        <ModalHeader onClose={handleCloseModal}>
-          {editingUser ? 'Edit User' : 'Add New User'}
-        </ModalHeader>
-        <form onSubmit={handleSubmit}>
-          <ModalContent>
-            <div className="space-y-4">
+      {/* Add/Edit User Drawer */}
+      <Drawer
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          title={editingUser ? 'Edit User' : 'Add New User'}
+          width="max-w-md"
+          footer={
+              <>
+                  <Button variant="outline" type="button" onClick={handleCloseModal}>
+                      Cancel
+                  </Button>
+                  <Button type="button" onClick={handleSubmit} disabled={isCreating || isUpdating}>
+                      {editingUser ? (isUpdating ? 'Updating...' : 'Update') : (isCreating ? 'Creating...' : 'Create')} User
+                  </Button>
+              </>
+          }
+      >
+          <form className="space-y-4 pt-2">
               <Input
-                label="Name"
-                value={formData.name}
-                onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="Enter user name"
-                required
+                  label="Name"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  placeholder="Enter user name"
+                  required
               />
               <Input
-                label="Email"
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="Enter email address"
-                required
-                disabled={!!editingUser}
+                  label="Email"
+                  type="email"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  placeholder="Enter email address"
+                  required
+                  disabled={!!editingUser}
               />
               {!editingUser && (
-                <Input
-                  label="Password"
-                  type="password"
-                  value={formData.password}
-                  onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                  placeholder="Enter password (optional)"
-                  helperText="Leave blank to auto-generate"
-                />
+                  <Input
+                      label="Password"
+                      type="password"
+                      value={formData.password}
+                      onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                      placeholder="Enter password (optional)"
+                      helperText="Leave blank to auto-generate"
+                  />
               )}
               <div>
-                <label className="block text-sm font-medium text-text-primary mb-1.5">
-                  Role
-                </label>
-                <select
-                  value={formData.role_id}
-                  onChange={(e) => setFormData({ ...formData, role_id: parseInt(e.target.value) })}
-                  className="w-full px-4 py-2.5 rounded-lg border border-border-light bg-background-paper text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
-                >
-                  <option value={3}>Select Role</option>
-                  {lookups?.roles?.map((role) => (
-                    <option key={role.id} value={role.id}>
-                      {role.name}
-                    </option>
-                  ))}
-                </select>
+                  <label className="block text-sm font-medium text-text-primary mb-1.5">
+                      Role
+                  </label>
+                  <select
+                      value={formData.role_id}
+                      onChange={(e) => setFormData({ ...formData, role_id: parseInt(e.target.value) })}
+                      className="w-full px-4 py-2.5 rounded-lg border border-border-light bg-background-paper text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                  >
+                      <option value={3}>Select Role</option>
+                      {lookups?.roles?.map((role) => (
+                          <option key={role.id} value={role.id}>
+                              {role.name}
+                          </option>
+                      ))}
+                  </select>
               </div>
               <div className="flex items-center gap-2">
-                <input
-                  type="checkbox"
-                  id="is_active"
-                  checked={formData.is_active}
-                  onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
-                  className="w-4 h-4 rounded border-border-light text-primary focus:ring-primary"
-                />
-                <label htmlFor="is_active" className="text-sm text-text-primary">
-                  Active
-                </label>
+                  <input
+                      type="checkbox"
+                      id="is_active"
+                      checked={formData.is_active}
+                      onChange={(e) => setFormData({ ...formData, is_active: e.target.checked })}
+                      className="w-4 h-4 rounded border-border-light text-primary focus:ring-primary"
+                  />
+                  <label htmlFor="is_active" className="text-sm text-text-primary">
+                      Active
+                  </label>
               </div>
-            </div>
-          </ModalContent>
-          <ModalFooter>
-            <Button variant="outline" type="button" onClick={handleCloseModal}>
-              Cancel
-            </Button>
-            <Button type="submit" disabled={isCreating || isUpdating}>
-              {editingUser ? (isUpdating ? 'Updating...' : 'Update') : (isCreating ? 'Creating...' : 'Create')} User
-            </Button>
-          </ModalFooter>
-        </form>
-      </Modal>
+          </form>
+      </Drawer>
     </div>
   );
 };

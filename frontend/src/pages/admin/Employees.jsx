@@ -13,7 +13,7 @@ import {
 } from '../../components/ui/table';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
-import { Modal, ModalHeader, ModalContent, ModalFooter } from '../../components/ui/modal';
+import Drawer from '../../components/ui/drawer';
 import { Input } from '../../components/ui/input';
 import {
   Add,
@@ -382,220 +382,220 @@ const Employees = () => {
         </div>
 
 
-      {/* Add/Edit/View Employee Modal */}
-      <Modal isOpen={isModalOpen} onClose={handleCloseModal} size="xl">
-        <ModalHeader onClose={handleCloseModal}>
-          {isViewMode ? 'View Employee' : editingEmployee ? 'Edit Employee' : 'Add New Employee'}
-        </ModalHeader>
-        <form onSubmit={handleSubmit}>
-          <ModalContent>
-            <div className="max-h-[60vh] overflow-y-auto pr-2">
+      {/* Add/Edit/View Employee Drawer */}
+      <Drawer
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          title={isViewMode ? 'View Employee' : editingEmployee ? 'Edit Employee' : 'Add New Employee'}
+          width="max-w-4xl"
+          footer={
+              <>
+                  <Button variant="outline" type="button" onClick={handleCloseModal}>
+                      {isViewMode ? 'Close' : 'Cancel'}
+                  </Button>
+                  {!isViewMode && (
+                      <Button type="button" onClick={handleSubmit} disabled={isCreating || isUpdating}>
+                          {isCreating ? 'Creating...' : (editingEmployee ? (isUpdating ? 'Updating...' : 'Update') : 'Create')} Employee
+                      </Button>
+                  )}
+              </>
+          }
+      >
+          <form className="pt-2 pb-6">
               {/* Personal Information */}
               <h3 className="text-md font-semibold text-text-primary mb-3 pb-2 border-b border-border-light">
-                Personal Information
+                  Personal Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <Input
-                  label="First Name *"
-                  value={formData.firstName}
-                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                  placeholder="Enter first name"
-                  required
-                  disabled={isViewMode}
-                />
-                <Input
-                  label="Last Name"
-                  value={formData.lastName}
-                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                  placeholder="Enter last name"
-                  disabled={isViewMode}
-                />
-                <Input
-                  label="Email *"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="Enter email"
-                  required
-                  disabled={isViewMode}
-                />
-                <Input
-                  label="Phone Number"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="Enter phone"
-                  disabled={isViewMode}
-                />
-                <Input
-                  label="Date of Birth"
-                  type="date"
-                  value={formData.dateOfBirth}
-                  onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                  disabled={isViewMode}
-                />
-                <SelectField
-                  label="Gender"
-                  value={formData.genderId}
-                  onChange={(e) => setFormData({ ...formData, genderId: parseInt(e.target.value) })}
-                  options={lookups?.genders}
-                  disabled={isViewMode}
-                />
-                <SelectField
-                  label="Marital Status"
-                  value={formData.maritalStatusId}
-                  onChange={(e) => setFormData({ ...formData, maritalStatusId: parseInt(e.target.value) })}
-                  options={lookups?.marital_statuses}
-                  disabled={isViewMode}
-                />
-                <SelectField
-                  label="Blood Group"
-                  value={formData.bloodGroupId}
-                  onChange={(e) => setFormData({ ...formData, bloodGroupId: parseInt(e.target.value) })}
-                  options={lookups?.blood_groups}
-                  disabled={isViewMode}
-                />
+                  <Input
+                      label="First Name *"
+                      value={formData.firstName}
+                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                      placeholder="Enter first name"
+                      required
+                      disabled={isViewMode}
+                  />
+                  <Input
+                      label="Last Name"
+                      value={formData.lastName}
+                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                      placeholder="Enter last name"
+                      disabled={isViewMode}
+                  />
+                  <Input
+                      label="Email *"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="Enter email"
+                      required
+                      disabled={isViewMode}
+                  />
+                  <Input
+                      label="Phone Number"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      placeholder="Enter phone"
+                      disabled={isViewMode}
+                  />
+                  <Input
+                      label="Date of Birth"
+                      type="date"
+                      value={formData.dateOfBirth}
+                      onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                      disabled={isViewMode}
+                  />
+                  <SelectField
+                      label="Gender"
+                      value={formData.genderId}
+                      onChange={(e) => setFormData({ ...formData, genderId: parseInt(e.target.value) })}
+                      options={lookups?.genders}
+                      disabled={isViewMode}
+                  />
+                  <SelectField
+                      label="Marital Status"
+                      value={formData.maritalStatusId}
+                      onChange={(e) => setFormData({ ...formData, maritalStatusId: parseInt(e.target.value) })}
+                      options={lookups?.marital_statuses}
+                      disabled={isViewMode}
+                  />
+                  <SelectField
+                      label="Blood Group"
+                      value={formData.bloodGroupId}
+                      onChange={(e) => setFormData({ ...formData, bloodGroupId: parseInt(e.target.value) })}
+                      options={lookups?.blood_groups}
+                      disabled={isViewMode}
+                  />
               </div>
 
               {/* Employment Details */}
               <h3 className="text-md font-semibold text-text-primary mb-3 pb-2 border-b border-border-light">
-                Employment Details
+                  Employment Details
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <Input
-                  label="Date of Joining"
-                  type="date"
-                  value={formData.dateOfJoining}
-                  onChange={(e) => setFormData({ ...formData, dateOfJoining: e.target.value })}
-                  disabled={isViewMode}
-                />
-                <SelectField
-                  label="Department"
-                  value={formData.departmentId}
-                  onChange={(e) => setFormData({ ...formData, departmentId: parseInt(e.target.value) })}
-                  options={lookups?.departments}
-                  disabled={isViewMode}
-                />
-                <SelectField
-                  label="Designation"
-                  value={formData.designationId}
-                  onChange={(e) => setFormData({ ...formData, designationId: parseInt(e.target.value) })}
-                  options={lookups?.designations}
-                  disabled={isViewMode}
-                />
-                <SelectField
-                  label="Employment Type"
-                  value={formData.employmentType}
-                  onChange={(e) => setFormData({ ...formData, employmentType: parseInt(e.target.value) })}
-                  options={lookups?.employment_types}
-                  disabled={isViewMode}
-                />
-                <SelectField
-                  label="Employment Status"
-                  value={formData.employmentStatus}
-                  onChange={(e) => setFormData({ ...formData, employmentStatus: parseInt(e.target.value) })}
-                  options={lookups?.employment_statuses}
-                  disabled={isViewMode}
-                />
-                <SelectField
-                  label="Role *"
-                  value={formData.roleId}
-                  onChange={(e) => setFormData({ ...formData, roleId: parseInt(e.target.value) })}
-                  options={lookups?.roles}
-                  disabled={isViewMode}
-                />
+                  <Input
+                      label="Date of Joining"
+                      type="date"
+                      value={formData.dateOfJoining}
+                      onChange={(e) => setFormData({ ...formData, dateOfJoining: e.target.value })}
+                      disabled={isViewMode}
+                  />
+                  <SelectField
+                      label="Department"
+                      value={formData.departmentId}
+                      onChange={(e) => setFormData({ ...formData, departmentId: parseInt(e.target.value) })}
+                      options={lookups?.departments}
+                      disabled={isViewMode}
+                  />
+                  <SelectField
+                      label="Designation"
+                      value={formData.designationId}
+                      onChange={(e) => setFormData({ ...formData, designationId: parseInt(e.target.value) })}
+                      options={lookups?.designations}
+                      disabled={isViewMode}
+                  />
+                  <SelectField
+                      label="Employment Type"
+                      value={formData.employmentType}
+                      onChange={(e) => setFormData({ ...formData, employmentType: parseInt(e.target.value) })}
+                      options={lookups?.employment_types}
+                      disabled={isViewMode}
+                  />
+                  <SelectField
+                      label="Employment Status"
+                      value={formData.employmentStatus}
+                      onChange={(e) => setFormData({ ...formData, employmentStatus: parseInt(e.target.value) })}
+                      options={lookups?.employment_statuses}
+                      disabled={isViewMode}
+                  />
+                  <SelectField
+                      label="Role *"
+                      value={formData.roleId}
+                      onChange={(e) => setFormData({ ...formData, roleId: parseInt(e.target.value) })}
+                      options={lookups?.roles}
+                      disabled={isViewMode}
+                  />
               </div>
 
               {/* Address */}
               <h3 className="text-md font-semibold text-text-primary mb-3 pb-2 border-b border-border-light">
-                Address
+                  Address
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <Input
-                  label="Address Line 1"
-                  value={formData.addressLine1}
-                  onChange={(e) => setFormData({ ...formData, addressLine1: e.target.value })}
-                  placeholder="Enter address"
-                  disabled={isViewMode}
-                />
-                <Input
-                  label="Address Line 2"
-                  value={formData.addressLine2}
-                  onChange={(e) => setFormData({ ...formData, addressLine2: e.target.value })}
-                  placeholder="Enter address line 2"
-                  disabled={isViewMode}
-                />
-                <Input
-                  label="City"
-                  value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  placeholder="Enter city"
-                  disabled={isViewMode}
-                />
-                <Input
-                  label="State"
-                  value={formData.state}
-                  onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                  placeholder="Enter state"
-                  disabled={isViewMode}
-                />
-                <Input
-                  label="Postal Code"
-                  value={formData.postalCode}
-                  onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
-                  placeholder="Enter postal code"
-                  disabled={isViewMode}
-                />
-                <SelectField
-                  label="Country"
-                  value={formData.countryId}
-                  onChange={(e) => setFormData({ ...formData, countryId: parseInt(e.target.value) })}
-                  options={lookups?.countries}
-                  disabled={isViewMode}
-                />
+                  <Input
+                      label="Address Line 1"
+                      value={formData.addressLine1}
+                      onChange={(e) => setFormData({ ...formData, addressLine1: e.target.value })}
+                      placeholder="Enter address"
+                      disabled={isViewMode}
+                  />
+                  <Input
+                      label="Address Line 2"
+                      value={formData.addressLine2}
+                      onChange={(e) => setFormData({ ...formData, addressLine2: e.target.value })}
+                      placeholder="Enter address line 2"
+                      disabled={isViewMode}
+                  />
+                  <Input
+                      label="City"
+                      value={formData.city}
+                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                      placeholder="Enter city"
+                      disabled={isViewMode}
+                  />
+                  <Input
+                      label="State"
+                      value={formData.state}
+                      onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                      placeholder="Enter state"
+                      disabled={isViewMode}
+                  />
+                  <Input
+                      label="Postal Code"
+                      value={formData.postalCode}
+                      onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                      placeholder="Enter postal code"
+                      disabled={isViewMode}
+                  />
+                  <SelectField
+                      label="Country"
+                      value={formData.countryId}
+                      onChange={(e) => setFormData({ ...formData, countryId: parseInt(e.target.value) })}
+                      options={lookups?.countries}
+                      disabled={isViewMode}
+                  />
               </div>
 
               {/* Additional Notes */}
               <h3 className="text-md font-semibold text-text-primary mb-3 pb-2 border-b border-border-light">
-                Additional Information
+                  Additional Information
               </h3>
               <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-1.5">Notes</label>
-                  <textarea
-                    value={formData.additionalNotes}
-                    onChange={(e) => setFormData({ ...formData, additionalNotes: e.target.value })}
-                    placeholder="Enter additional notes"
-                    rows={3}
-                    disabled={isViewMode}
-                    className="w-full px-4 py-2.5 rounded-lg border border-border-light bg-background-paper text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none disabled:bg-gray-100"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="is_active"
-                    checked={formData.isActive}
-                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                    disabled={isViewMode}
-                    className="w-4 h-4 rounded border-border-light text-primary focus:ring-primary"
-                  />
-                  <label htmlFor="is_active" className="text-sm text-text-primary">Active</label>
-                </div>
+                  <div>
+                      <label className="block text-sm font-medium text-text-primary mb-1.5">Notes</label>
+                      <textarea
+                          value={formData.additionalNotes}
+                          onChange={(e) => setFormData({ ...formData, additionalNotes: e.target.value })}
+                          placeholder="Enter additional notes"
+                          rows={3}
+                          disabled={isViewMode}
+                          className="w-full px-4 py-2.5 rounded-lg border border-border-light bg-background-paper text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none disabled:bg-gray-100"
+                      />
+                  </div>
+                  <div className="flex items-center gap-2">
+                      <input
+                          type="checkbox"
+                          id="is_active"
+                          checked={formData.isActive}
+                          onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                          disabled={isViewMode}
+                          className="w-4 h-4 rounded border-border-light text-primary focus:ring-primary"
+                      />
+                      <label htmlFor="is_active" className="text-sm text-text-primary">Active</label>
+                  </div>
               </div>
-            </div>
-          </ModalContent>
-          <ModalFooter>
-            <Button variant="outline" type="button" onClick={handleCloseModal}>
-              {isViewMode ? 'Close' : 'Cancel'}
-            </Button>
-            {!isViewMode && (
-              <Button type="submit" disabled={isCreating || isUpdating}>
-                {isCreating ? 'Creating...' : (editingEmployee ? (isUpdating ? 'Updating...' : 'Update') : 'Create')} Employee
-              </Button>
-            )}
-          </ModalFooter>
-        </form>
-      </Modal>
+          </form>
+      </Drawer>
     </div>
   );
 };

@@ -9,19 +9,20 @@ import {
 } from '../../components/ui/table';
 import { Button } from '../../components/ui/button';
 import { Input } from '../../components/ui/input';
+import Drawer from '../../components/ui/drawer';
 import {
     Add,
     Delete,
     Print,
     Search,
     Save,
-    ArrowBack,
+    // ArrowBack, // Removed
 } from '@mui/icons-material';
 import { useGetProductsQuery, useCreateProductMutation, useGetRecurringTemplatesQuery } from '../../services/productsApi';
 
 const Products = () => {
     const [searchTerm, setSearchTerm] = useState('');
-    const [view, setView] = useState('list'); // 'list' or 'form'
+    const [isDrawerOpen, setIsDrawerOpen] = useState(false); // Changed from view state
     const [activeFormTab, setActiveFormTab] = useState('recurring'); // 'recurring' or 'variants'
 
     // API Hooks
@@ -161,7 +162,7 @@ const Products = () => {
             await createProduct(payload).unwrap();
 
             alert("Product created successfully!");
-            setView('list');
+            setIsDrawerOpen(false);
             setFormData({
                 name: '',
                 product_type: 'Goods',
@@ -178,6 +179,14 @@ const Products = () => {
             console.error("Failed to create product", error);
             alert("Failed to create product: " + (error.data?.detail || error.message));
         }
+    };
+
+    const handleOpenDrawer = () => {
+        setIsDrawerOpen(true);
+    };
+    
+    const handleCloseDrawer = () => {
+        setIsDrawerOpen(false);
     };
 
     const products = productsData?.items || [];
@@ -209,24 +218,11 @@ const Products = () => {
             {/* Action Bar */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-white p-4 rounded-lg shadow-sm border border-border-light">
                 <div className="flex items-center gap-3">
-                    {view === 'list' ? (
-                        <Button onClick={() => setView('form')}>
-                            <Add className="mr-1" style={{ fontSize: 18 }} />
-                            New
-                        </Button>
-                    ) : (
-                        <div className="flex gap-2">
-                            <Button onClick={() => setView('list')} variant="outline">
-                                <ArrowBack className="mr-1" style={{ fontSize: 18 }} />
-                                Back
-                            </Button>
-                            <Button onClick={handleSave} disabled={isCreating}>
-                                <Save className="mr-1" style={{ fontSize: 18 }} />
-                                {isCreating ? 'Saving...' : 'Save'}
-                            </Button>
-                        </div>
-                    )}
-
+                    <Button onClick={handleOpenDrawer}>
+                        <Add className="mr-1" style={{ fontSize: 18 }} />
+                        New
+                    </Button>
+                    
                     <div className="h-8 w-px bg-border-light mx-1"></div>
                     <button className="p-2 text-text-secondary hover:text-red-500 transition-colors rounded hover:bg-red-50" title="Delete">
                         <Delete style={{ fontSize: 20 }} />
@@ -251,304 +247,320 @@ const Products = () => {
 
             {/* Content Area */}
             <div className="bg-white rounded-lg shadow border border-border-light min-h-[500px] p-6">
-                {view === 'list' ? (
-                    /* LIST VIEW */
-                    isLoading ? (
-                        <div className="text-center p-10 text-gray-500">Loading products...</div>
-                    ) : isError ? (
-                        <div className="text-center p-10 text-red-500">Error loading products.</div>
-                    ) : (
-                        <Table>
-                            <TableHeader>
+                {isLoading ? (
+                    <div className="text-center p-10 text-gray-500">Loading products...</div>
+                ) : isError ? (
+                    <div className="text-center p-10 text-red-500">Error loading products.</div>
+                ) : (
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead>Product Name</TableHead>
+                                <TableHead>Sales Price</TableHead>
+                                <TableHead>Cost</TableHead>
+                                <TableHead>Profit Margin</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {products.length === 0 ? (
                                 <TableRow>
-                                    <TableHead>Product Name</TableHead>
-                                    <TableHead>Sales Price</TableHead>
-                                    <TableHead>Cost</TableHead>
-                                    <TableHead>Profit Margin</TableHead>
+                                    <TableCell colSpan={4} className="text-center py-10 text-gray-500">
+                                        No products found. Click "New" to create one.
+                                    </TableCell>
                                 </TableRow>
-                            </TableHeader>
-                            <TableBody>
-                                {products.length === 0 ? (
-                                    <TableRow>
-                                        <TableCell colSpan={4} className="text-center py-10 text-gray-500">
-                                            No products found. Click "New" to create one.
+                            ) : (
+                                products.map((product) => (
+                                    <TableRow key={product.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => {
+                                        // Optional: Load product for editing
+                                        handleOpenDrawer();
+                                    }}>
+                                        <TableCell className="font-medium">{product.name}</TableCell>
+                                        <TableCell>${product.sales_price?.toFixed(2)}</TableCell>
+                                        <TableCell className="text-text-secondary">${product.cost_price?.toFixed(2)}</TableCell>
+                                        <TableCell className="text-green-600 font-medium">
+                                            ${(product.profit_margin || (product.sales_price - product.cost_price))?.toFixed(2)}
                                         </TableCell>
                                     </TableRow>
-                                ) : (
-                                    products.map((product) => (
-                                        <TableRow key={product.id} className="hover:bg-gray-50 cursor-pointer" onClick={() => setView('form')}>
-                                            <TableCell className="font-medium">{product.name}</TableCell>
-                                            <TableCell>${product.sales_price?.toFixed(2)}</TableCell>
-                                            <TableCell className="text-text-secondary">${product.cost_price?.toFixed(2)}</TableCell>
-                                            <TableCell className="text-green-600 font-medium">
-                                                ${(product.profit_margin || (product.sales_price - product.cost_price))?.toFixed(2)}
-                                            </TableCell>
-                                        </TableRow>
-                                    ))
-                                )}
-                            </TableBody>
-                        </Table>
-                    )
-                ) : (
-                    /* FORM VIEW */
-                    <div className="max-w-5xl mx-auto">
-                        {/* Product Name Header */}
-                        <div className="mb-8">
-                            <label className="block text-sm font-medium text-text-secondary mb-1">Product Name</label>
-                            <input
-                                type="text"
-                                name="name"
-                                value={formData.name}
-                                onChange={handleInputChange}
-                                className="w-full lg:w-1/2 text-3xl font-semibold border-b-2 border-border-light focus:border-primary outline-none py-2 placeholder-gray-300"
-                                placeholder="e.g. Cheese Burger"
-                            />
-                        </div>
-
-                        {/* Main Fields Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 mb-10">
-                            {/* Left Column */}
-                            <div className="space-y-6">
-                                <div className="flex items-center gap-4">
-                                    <label className="w-32 text-sm font-medium text-text-primary">Product Type</label>
-                                    <select
-                                        name="product_type"
-                                        value={formData.product_type}
-                                        onChange={handleInputChange}
-                                        className="flex-1 p-2 border border-border-light rounded focus:ring-2 focus:ring-primary/20 outline-none"
-                                    >
-                                        <option value="Goods">Goods</option>
-                                        <option value="Service">Service</option>
-                                    </select>
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <label className="w-32 text-sm font-medium text-text-primary">Sales Price</label>
-                                    <input
-                                        type="number"
-                                        name="sales_price"
-                                        value={formData.sales_price}
-                                        onChange={handleInputChange}
-                                        className="flex-1 p-2 border-b border-border-light focus:border-primary outline-none transition-colors"
-                                        placeholder="0.00"
-                                    />
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <label className="w-32 text-sm font-medium text-text-primary">Cost Price</label>
-                                    <input
-                                        type="number"
-                                        name="cost_price"
-                                        value={formData.cost_price}
-                                        onChange={handleInputChange}
-                                        className="flex-1 p-2 border-b border-border-light focus:border-primary outline-none transition-colors"
-                                        placeholder="0.00"
-                                    />
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <label className="w-32 text-sm font-medium text-text-primary">Profit Margin</label>
-                                    <div className="flex-1 p-2 text-text-secondary">
-                                        ${profitMargin}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Right Column */}
-                            <div className="space-y-6">
-                                <div className="flex items-center gap-4">
-                                    <label className="w-32 text-sm font-medium text-text-primary">Tax</label>
-                                    <input
-                                        type="text"
-                                        name="tax"
-                                        value={formData.tax}
-                                        onChange={handleInputChange}
-                                        className="flex-1 p-2 border-b border-border-light focus:border-primary outline-none transition-colors"
-                                        placeholder="Ex: 15%"
-                                    />
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <label className="w-32 text-sm font-medium text-text-primary">Main Image URL</label>
-                                    <input
-                                        type="text"
-                                        name="main_image"
-                                        value={formData.main_image}
-                                        onChange={handleInputChange}
-                                        className="flex-1 p-2 border-b border-border-light focus:border-primary outline-none transition-colors"
-                                        placeholder="https://example.com/image.jpg"
-                                    />
-                                </div>
-                                <div className="flex items-center gap-4">
-                                    <label className="w-32 text-sm font-medium text-text-primary">Sub Images</label>
-                                    <div className="flex-1 space-y-2">
-                                        <input
-                                            type="text"
-                                            value={subImages[0] || ''}
-                                            onChange={(e) => handleSubImageChange(0, e.target.value)}
-                                            className="w-full p-2 border-b border-border-light focus:border-primary outline-none transition-colors"
-                                            placeholder="Sub Image URL 1"
-                                        />
-                                        <input
-                                            type="text"
-                                            value={subImages[1] || ''}
-                                            onChange={(e) => handleSubImageChange(1, e.target.value)}
-                                            className="w-full p-2 border-b border-border-light focus:border-primary outline-none transition-colors"
-                                            placeholder="Sub Image URL 2"
-                                        />
-                                        <input
-                                            type="text"
-                                            value={subImages[2] || ''}
-                                            onChange={(e) => handleSubImageChange(2, e.target.value)}
-                                            className="w-full p-2 border-b border-border-light focus:border-primary outline-none transition-colors"
-                                            placeholder="Sub Image URL 3"
-                                        />
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        {/* Tabs: Recurring Prices | Variants */}
-                        <div className="mb-6">
-                            <div className="flex gap-4 border-b border-border-light">
-                                <button
-                                    className={`px-6 py-2 font-medium text-sm border-b-2 transition-colors ${activeFormTab === 'recurring' ? 'border-primary text-primary' : 'border-transparent text-text-secondary hover:text-text-primary'}`}
-                                    onClick={() => setActiveFormTab('recurring')}
-                                >
-                                    Recurring Prices
-                                </button>
-                                <button
-                                    className={`px-6 py-2 font-medium text-sm border-b-2 transition-colors ${activeFormTab === 'variants' ? 'border-primary text-primary' : 'border-transparent text-text-secondary hover:text-text-primary'}`}
-                                    onClick={() => setActiveFormTab('variants')}
-                                >
-                                    Variants
-                                </button>
-                            </div>
-                        </div>
-
-                        {/* Tab Content */}
-                        {activeFormTab === 'recurring' && (
-                            <div className="border border-border-light rounded-lg overflow-hidden">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow className="bg-gray-50/50">
-                                            <TableHead>Recurring Plan</TableHead>
-                                            <TableHead>Price</TableHead>
-                                            <TableHead>Min qty</TableHead>
-                                            <TableHead>Start date</TableHead>
-                                            <TableHead>End date</TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {recurringPlans.length === 0 ? (
-                                            <TableRow>
-                                                <TableCell colSpan={5} className="text-center py-4 text-gray-500">
-                                                    Enter a Sales Price to see recurring plans.
-                                                </TableCell>
-                                            </TableRow>
-                                        ) : (
-                                            recurringPlans.map((plan, index) => (
-                                                <TableRow key={index}>
-                                                    <TableCell>{plan.plan_name}</TableCell>
-                                                    <TableCell>${plan.price.toFixed(2)}</TableCell>
-                                                    <TableCell>{plan.min_qty}</TableCell>
-                                                    <TableCell>
-                                                        <input
-                                                            type="date"
-                                                            className="bg-transparent outline-none w-full"
-                                                            value={plan.start_date || ''}
-                                                            onChange={(e) => {
-                                                                const newPlans = [...recurringPlans];
-                                                                newPlans[index].start_date = e.target.value;
-                                                                setRecurringPlans(newPlans);
-                                                            }}
-                                                        />
-                                                    </TableCell>
-                                                    <TableCell>
-                                                        <input
-                                                            type="date"
-                                                            className="bg-transparent outline-none w-full"
-                                                            value={plan.end_date || ''}
-                                                            onChange={(e) => {
-                                                                const newPlans = [...recurringPlans];
-                                                                newPlans[index].end_date = e.target.value;
-                                                                setRecurringPlans(newPlans);
-                                                            }}
-                                                        />
-                                                    </TableCell>
-                                                </TableRow>
-                                            ))
-                                        )}
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        )}
-                        {activeFormTab === 'variants' && (
-                            <div className="border border-border-light rounded-lg overflow-hidden">
-                                <Table>
-                                    <TableHeader>
-                                        <TableRow className="bg-gray-50/50">
-                                            <TableHead>Attribute</TableHead>
-                                            <TableHead>Values</TableHead>
-                                            <TableHead>Extra Price</TableHead>
-                                            <TableHead className="w-[50px]"></TableHead>
-                                        </TableRow>
-                                    </TableHeader>
-                                    <TableBody>
-                                        {variants.map((variant, index) => (
-                                            <TableRow key={index}>
-                                                <TableCell>
-                                                    <input
-                                                        type="text"
-                                                        placeholder="e.g. Size"
-                                                        className="bg-transparent outline-none w-full border-b border-transparent focus:border-primary"
-                                                        value={variant.attribute}
-                                                        onChange={(e) => handleVariantChange(index, 'attribute', e.target.value)}
-                                                    />
-                                                </TableCell>
-                                                <TableCell>
-                                                    <input
-                                                        type="text"
-                                                        placeholder="e.g. Large"
-                                                        className="bg-transparent outline-none w-full border-b border-transparent focus:border-primary"
-                                                        value={variant.value}
-                                                        onChange={(e) => handleVariantChange(index, 'value', e.target.value)}
-                                                    />
-                                                </TableCell>
-                                                <TableCell>
-                                                    <input
-                                                        type="number"
-                                                        placeholder="0.00"
-                                                        className="bg-transparent outline-none w-full border-b border-transparent focus:border-primary"
-                                                        value={variant.extra_price}
-                                                        onChange={(e) => handleVariantChange(index, 'extra_price', e.target.value)}
-                                                    />
-                                                </TableCell>
-                                                <TableCell>
-                                                    <button
-                                                        onClick={() => handleRemoveVariant(index)}
-                                                        className="text-gray-400 hover:text-red-500"
-                                                    >
-                                                        <Delete style={{ fontSize: 18 }} />
-                                                    </button>
-                                                </TableCell>
-                                            </TableRow>
-                                        ))}
-                                        <TableRow>
-                                            <TableCell colSpan={4}>
-                                                <Button
-                                                    variant="ghost"
-                                                    className="text-primary hover:bg-primary/5 w-full justify-start"
-                                                    onClick={handleAddVariant}
-                                                >
-                                                    <Add className="mr-2" style={{ fontSize: 18 }} />
-                                                    Add Line
-                                                </Button>
-                                            </TableCell>
-                                        </TableRow>
-                                    </TableBody>
-                                </Table>
-                            </div>
-                        )}
-                    </div>
+                                ))
+                            )}
+                        </TableBody>
+                    </Table>
                 )}
             </div>
+
+            {/* Product Drawer */}
+            <Drawer
+                isOpen={isDrawerOpen}
+                onClose={handleCloseDrawer}
+                title={formData.name || 'New Product'}
+                width="max-w-4xl"
+                footer={
+                    <>
+                        <Button variant="outline" onClick={handleCloseDrawer}>Cancel</Button>
+                        <Button onClick={handleSave} disabled={isCreating}>
+                            <Save className="mr-1" style={{ fontSize: 18 }} />
+                            {isCreating ? 'Saving...' : 'Save Product'}
+                        </Button>
+                    </>
+                }
+            >
+                <div className="py-2">
+                    {/* Product Name Header */}
+                    <div className="mb-8">
+                        <label className="block text-sm font-medium text-text-secondary mb-1">Product Name</label>
+                        <input
+                            type="text"
+                            name="name"
+                            value={formData.name}
+                            onChange={handleInputChange}
+                            className="w-full text-3xl font-semibold border-b-2 border-border-light focus:border-primary outline-none py-2 placeholder-gray-300"
+                            placeholder="e.g. Cheese Burger"
+                        />
+                    </div>
+
+                    {/* Main Fields Grid */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6 mb-10">
+                        {/* Left Column */}
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-4">
+                                <label className="w-32 text-sm font-medium text-text-primary">Product Type</label>
+                                <select
+                                    name="product_type"
+                                    value={formData.product_type}
+                                    onChange={handleInputChange}
+                                    className="flex-1 p-2 border border-border-light rounded focus:ring-2 focus:ring-primary/20 outline-none"
+                                >
+                                    <option value="Goods">Goods</option>
+                                    <option value="Service">Service</option>
+                                </select>
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <label className="w-32 text-sm font-medium text-text-primary">Sales Price</label>
+                                <input
+                                    type="number"
+                                    name="sales_price"
+                                    value={formData.sales_price}
+                                    onChange={handleInputChange}
+                                    className="flex-1 p-2 border-b border-border-light focus:border-primary outline-none transition-colors"
+                                    placeholder="0.00"
+                                />
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <label className="w-32 text-sm font-medium text-text-primary">Cost Price</label>
+                                <input
+                                    type="number"
+                                    name="cost_price"
+                                    value={formData.cost_price}
+                                    onChange={handleInputChange}
+                                    className="flex-1 p-2 border-b border-border-light focus:border-primary outline-none transition-colors"
+                                    placeholder="0.00"
+                                />
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <label className="w-32 text-sm font-medium text-text-primary">Profit Margin</label>
+                                <div className="flex-1 p-2 text-text-secondary">
+                                    ${profitMargin}
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Right Column */}
+                        <div className="space-y-6">
+                            <div className="flex items-center gap-4">
+                                <label className="w-32 text-sm font-medium text-text-primary">Tax</label>
+                                <input
+                                    type="text"
+                                    name="tax"
+                                    value={formData.tax}
+                                    onChange={handleInputChange}
+                                    className="flex-1 p-2 border-b border-border-light focus:border-primary outline-none transition-colors"
+                                    placeholder="Ex: 15%"
+                                />
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <label className="w-32 text-sm font-medium text-text-primary">Main Image URL</label>
+                                <input
+                                    type="text"
+                                    name="main_image"
+                                    value={formData.main_image}
+                                    onChange={handleInputChange}
+                                    className="flex-1 p-2 border-b border-border-light focus:border-primary outline-none transition-colors"
+                                    placeholder="https://example.com/image.jpg"
+                                />
+                            </div>
+                            <div className="flex items-center gap-4">
+                                <label className="w-32 text-sm font-medium text-text-primary">Sub Images</label>
+                                <div className="flex-1 space-y-2">
+                                    <input
+                                        type="text"
+                                        value={subImages[0] || ''}
+                                        onChange={(e) => handleSubImageChange(0, e.target.value)}
+                                        className="w-full p-2 border-b border-border-light focus:border-primary outline-none transition-colors"
+                                        placeholder="Sub Image URL 1"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={subImages[1] || ''}
+                                        onChange={(e) => handleSubImageChange(1, e.target.value)}
+                                        className="w-full p-2 border-b border-border-light focus:border-primary outline-none transition-colors"
+                                        placeholder="Sub Image URL 2"
+                                    />
+                                    <input
+                                        type="text"
+                                        value={subImages[2] || ''}
+                                        onChange={(e) => handleSubImageChange(2, e.target.value)}
+                                        className="w-full p-2 border-b border-border-light focus:border-primary outline-none transition-colors"
+                                        placeholder="Sub Image URL 3"
+                                    />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* Tabs: Recurring Prices | Variants */}
+                    <div className="mb-6">
+                        <div className="flex gap-4 border-b border-border-light">
+                            <button
+                                className={`px-6 py-2 font-medium text-sm border-b-2 transition-colors ${activeFormTab === 'recurring' ? 'border-primary text-primary' : 'border-transparent text-text-secondary hover:text-text-primary'}`}
+                                onClick={() => setActiveFormTab('recurring')}
+                            >
+                                Recurring Prices
+                            </button>
+                            <button
+                                className={`px-6 py-2 font-medium text-sm border-b-2 transition-colors ${activeFormTab === 'variants' ? 'border-primary text-primary' : 'border-transparent text-text-secondary hover:text-text-primary'}`}
+                                onClick={() => setActiveFormTab('variants')}
+                            >
+                                Variants
+                            </button>
+                        </div>
+                    </div>
+
+                    {/* Tab Content */}
+                    {activeFormTab === 'recurring' && (
+                        <div className="border border-border-light rounded-lg overflow-hidden">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="bg-gray-50/50">
+                                        <TableHead>Recurring Plan</TableHead>
+                                        <TableHead>Price</TableHead>
+                                        <TableHead>Min qty</TableHead>
+                                        <TableHead>Start date</TableHead>
+                                        <TableHead>End date</TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {recurringPlans.length === 0 ? (
+                                        <TableRow>
+                                            <TableCell colSpan={5} className="text-center py-4 text-gray-500">
+                                                Enter a Sales Price to see recurring plans.
+                                            </TableCell>
+                                        </TableRow>
+                                    ) : (
+                                        recurringPlans.map((plan, index) => (
+                                            <TableRow key={index}>
+                                                <TableCell>{plan.plan_name}</TableCell>
+                                                <TableCell>${plan.price.toFixed(2)}</TableCell>
+                                                <TableCell>{plan.min_qty}</TableCell>
+                                                <TableCell>
+                                                    <input
+                                                        type="date"
+                                                        className="bg-transparent outline-none w-full"
+                                                        value={plan.start_date || ''}
+                                                        onChange={(e) => {
+                                                            const newPlans = [...recurringPlans];
+                                                            newPlans[index].start_date = e.target.value;
+                                                            setRecurringPlans(newPlans);
+                                                        }}
+                                                    />
+                                                </TableCell>
+                                                <TableCell>
+                                                    <input
+                                                        type="date"
+                                                        className="bg-transparent outline-none w-full"
+                                                        value={plan.end_date || ''}
+                                                        onChange={(e) => {
+                                                            const newPlans = [...recurringPlans];
+                                                            newPlans[index].end_date = e.target.value;
+                                                            setRecurringPlans(newPlans);
+                                                        }}
+                                                    />
+                                                </TableCell>
+                                            </TableRow>
+                                        ))
+                                    )}
+                                </TableBody>
+                            </Table>
+                        </div>
+                    )}
+                    {activeFormTab === 'variants' && (
+                        <div className="border border-border-light rounded-lg overflow-hidden">
+                            <Table>
+                                <TableHeader>
+                                    <TableRow className="bg-gray-50/50">
+                                        <TableHead>Attribute</TableHead>
+                                        <TableHead>Values</TableHead>
+                                        <TableHead>Extra Price</TableHead>
+                                        <TableHead className="w-[50px]"></TableHead>
+                                    </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                    {variants.map((variant, index) => (
+                                        <TableRow key={index}>
+                                            <TableCell>
+                                                <input
+                                                    type="text"
+                                                    placeholder="e.g. Size"
+                                                    className="bg-transparent outline-none w-full border-b border-transparent focus:border-primary"
+                                                    value={variant.attribute}
+                                                    onChange={(e) => handleVariantChange(index, 'attribute', e.target.value)}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <input
+                                                    type="text"
+                                                    placeholder="e.g. Large"
+                                                    className="bg-transparent outline-none w-full border-b border-transparent focus:border-primary"
+                                                    value={variant.value}
+                                                    onChange={(e) => handleVariantChange(index, 'value', e.target.value)}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <input
+                                                    type="number"
+                                                    placeholder="0.00"
+                                                    className="bg-transparent outline-none w-full border-b border-transparent focus:border-primary"
+                                                    value={variant.extra_price}
+                                                    onChange={(e) => handleVariantChange(index, 'extra_price', e.target.value)}
+                                                />
+                                            </TableCell>
+                                            <TableCell>
+                                                <button
+                                                    onClick={() => handleRemoveVariant(index)}
+                                                    className="text-gray-400 hover:text-red-500"
+                                                >
+                                                    <Delete style={{ fontSize: 18 }} />
+                                                </button>
+                                            </TableCell>
+                                        </TableRow>
+                                    ))}
+                                    <TableRow>
+                                        <TableCell colSpan={4}>
+                                            <Button
+                                                variant="ghost"
+                                                className="text-primary hover:bg-primary/5 w-full justify-start"
+                                                onClick={handleAddVariant}
+                                            >
+                                                <Add className="mr-2" style={{ fontSize: 18 }} />
+                                                Add Line
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                </TableBody>
+                            </Table>
+                        </div>
+                    )}
+                </div>
+            </Drawer>
         </div>
     );
 };
