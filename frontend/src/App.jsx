@@ -22,6 +22,7 @@ import Users from './pages/admin/Users';
 import Employees from './pages/admin/Employees';
 import Roles from './pages/admin/Roles';
 import RoleRights from './pages/admin/RoleRights';
+import Products from './pages/admin/Products';
 
 
 // Light theme with blue accent
@@ -88,20 +89,21 @@ function App() {
 
           {/* Protected Routes - All logged in users */}
           <Route element={<ProtectedRoute />}>
-            
+
             {/* ==================== */}
             {/* ADMIN/EMPLOYEE ROUTES - With Sidebar */}
             {/* ==================== */}
             <Route element={<AdminProtectedRoute />}>
               <Route element={<AdminLayout />}>
                 <Route path="/home" element={<Home />} />
-                
+
                 {/* Admin Management Pages */}
                 <Route path="/admin" element={<Navigate to="/admin/users" replace />} />
                 <Route path="/admin/users" element={<Users />} />
                 <Route path="/admin/employees" element={<Employees />} />
                 <Route path="/admin/roles" element={<Roles />} />
                 <Route path="/admin/role-rights" element={<RoleRights />} />
+                <Route path="/admin/products" element={<Products />} />
               </Route>
             </Route>
 

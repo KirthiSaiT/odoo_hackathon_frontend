@@ -1,6 +1,17 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
+import {
+    Table,
+    TableHeader,
+    TableBody,
+    TableRow,
+    TableHead,
+    TableCell,
+} from '../components/ui/table';
+import { Badge } from '../components/ui/badge';
+import { Button } from '../components/ui/button';
+import { KeyboardArrowRight } from '@mui/icons-material';
 
 const Orders = () => {
     const navigate = useNavigate();
@@ -12,95 +23,93 @@ const Orders = () => {
 
     // Mock orders data - replace with actual API data
     const orders = [
-        { id: 'SO001', date: '06/02/2026', amount: 1200 },
-        { id: 'SO002', date: '06/02/2026', amount: 1800 },
-        { id: 'SO003', date: '05/02/2026', amount: 950 },
-        { id: 'SO004', date: '04/02/2026', amount: 2300 },
-        { id: 'SO005', date: '03/02/2026', amount: 1450 },
+        { id: 'SO001', date: '06/02/2026', amount: 1200, status: 'Confirmed' },
+        { id: 'SO002', date: '06/02/2026', amount: 1800, status: 'Pending' },
+        { id: 'SO003', date: '05/02/2026', amount: 950, status: 'Delivered' },
+        { id: 'SO004', date: '04/02/2026', amount: 2300, status: 'Cancelled' },
+        { id: 'SO005', date: '03/02/2026', amount: 1450, status: 'Confirmed' },
     ];
 
-
+    const getStatusVariant = (status) => {
+        switch (status) {
+            case 'Confirmed': return 'primary';
+            case 'Delivered': return 'success';
+            case 'Cancelled': return 'danger';
+            case 'Pending': return 'warning';
+            default: return 'default';
+        }
+    };
 
     return (
-        <div className="min-h-screen bg-white">
+        <div className="min-h-screen bg-gray-50 text-text-primary font-sans">
             <Navbar />
 
-            <div className="max-w-6xl mx-auto px-8 py-12">
-                {/* Page Title */}
-                <h1 className="text-4xl font-semibold text-gray-800 mb-8">
-                    My Orders
-                </h1>
+            <div className="max-w-6xl mx-auto px-6 py-12">
+                {/* Header */}
+                <div className="mb-8">
+                    <h1 className="text-3xl font-bold text-text-primary">My Orders</h1>
+                    <p className="text-text-secondary mt-2">Track the status of your recent purchases</p>
+                </div>
 
                 {/* Orders Table Card */}
-                <div className="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
-                    {/* Card Header */}
-                    <div className="bg-gradient-to-r from-cyan-50 to-cyan-100 px-8 py-6 border-b border-cyan-200">
-                        <h2 className="text-2xl font-semibold text-cyan-700">
+                <div className="bg-white rounded-lg shadow-sm border border-border-light overflow-hidden">
+                    <div className="px-6 py-4 border-b border-border-light bg-gray-50/50">
+                        <h2 className="text-lg font-semibold text-text-primary">
                             Order History
                         </h2>
                     </div>
 
-                    {/* Table */}
-                    <div className="overflow-x-auto">
-                        <table className="w-full">
-                            {/* Table Header */}
-                            <thead className="bg-cyan-50 border-b-2 border-cyan-200">
-                                <tr>
-                                    <th className="px-8 py-4 text-left text-sm font-semibold text-cyan-700 uppercase tracking-wide">
-                                        Order ID
-                                    </th>
-                                    <th className="px-8 py-4 text-left text-sm font-semibold text-cyan-700 uppercase tracking-wide">
-                                        Order Date
-                                    </th>
-                                    <th className="px-8 py-4 text-left text-sm font-semibold text-cyan-700 uppercase tracking-wide">
-                                        Total Amount
-                                    </th>
-                                </tr>
-                            </thead>
-
-                            {/* Table Body */}
-                            <tbody className="divide-y divide-gray-200">
-                                {orders.map((order, index) => (
-                                    <tr
+                    {orders.length > 0 ? (
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead>Order ID</TableHead>
+                                    <TableHead>Date</TableHead>
+                                    <TableHead>Amount</TableHead>
+                                    <TableHead>Status</TableHead>
+                                    <TableHead className="text-right">Action</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {orders.map((order) => (
+                                    <TableRow
                                         key={order.id}
                                         onClick={() => handleOrderClick(order.id)}
-                                        className="hover:bg-cyan-50 transition-colors duration-150 cursor-pointer"
+                                        className="cursor-pointer hover:bg-gray-50/50"
                                     >
-                                        <td className="px-8 py-4">
-                                            <button
-                                                onClick={() => handleOrderClick(order.id)}
-                                                className="text-cyan-600 hover:text-cyan-700 font-medium hover:underline focus:outline-none focus:underline"
-                                            >
-                                                {order.id}
-                                            </button>
-                                        </td>
-                                        <td className="px-8 py-4 text-gray-700">
+                                        <TableCell className="font-medium text-primary">
+                                            {order.id}
+                                        </TableCell>
+                                        <TableCell className="text-text-secondary">
                                             {order.date}
-                                        </td>
-                                        <td className="px-8 py-4 text-gray-700 font-medium">
+                                        </TableCell>
+                                        <TableCell className="font-medium">
                                             ${order.amount.toLocaleString()}
-                                        </td>
-                                    </tr>
+                                        </TableCell>
+                                        <TableCell>
+                                            <Badge variant={getStatusVariant(order.status)}>
+                                                {order.status}
+                                            </Badge>
+                                        </TableCell>
+                                        <TableCell className="text-right">
+                                            <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
+                                                <KeyboardArrowRight className="text-text-secondary" />
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
                                 ))}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* Empty State (if no orders) */}
-                    {orders.length === 0 && (
+                            </TableBody>
+                        </Table>
+                    ) : (
                         <div className="px-8 py-16 text-center">
-                            <p className="text-gray-500 text-lg">
-                                No orders found
-                            </p>
-                            <p className="text-gray-400 text-sm mt-2">
-                                Your order history will appear here
-                            </p>
+                            <p className="text-text-primary text-lg font-medium">No orders found</p>
+                            <p className="text-text-secondary text-sm mt-1">Your order history will appear here</p>
                         </div>
                     )}
 
-                    {/* Table Footer */}
-                    <div className="bg-gray-50 px-8 py-4 border-t border-gray-200">
-                        <p className="text-sm text-gray-600">
+                    {/* Footer / Pagination */}
+                    <div className="px-6 py-4 border-t border-border-light bg-gray-50/50">
+                        <p className="text-sm text-text-secondary">
                             Showing {orders.length} order{orders.length !== 1 ? 's' : ''}
                         </p>
                     </div>

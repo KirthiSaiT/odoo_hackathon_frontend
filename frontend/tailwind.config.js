@@ -30,7 +30,7 @@ export default {
         DEFAULT: '0.4rem',
       },
       fontFamily: {
-        handwritten: ['"Caveat"', '"Comic Sans MS"', 'cursive'],
+
       },
     },
   },

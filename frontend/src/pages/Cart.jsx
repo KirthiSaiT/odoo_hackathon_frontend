@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { Button } from '../components/ui/button';
-import DeleteOutlineIcon from '@mui/icons-material/DeleteOutline';
+import { DeleteOutline, Add, Remove } from '@mui/icons-material';
 
 const Cart = () => {
     const navigate = useNavigate();
@@ -33,26 +33,25 @@ const Cart = () => {
     const total = 1200;
 
     return (
-        <div className="min-h-screen bg-background text-text-primary font-sans">
+        <div className="min-h-screen bg-gray-50 text-text-primary font-sans">
             <Navbar />
 
             <div className="max-w-7xl mx-auto px-6 py-8">
-                {/* Order Steps Header */}
-                <div className="flex gap-8 mb-12 border-b border-primary/30 pb-4 font-handwritten text-xl">
-                    <span className="text-primary border-b-2 border-primary pb-4 -mb-4.5 cursor-pointer">Order</span>
-                    <span className="text-text-secondary cursor-pointer hover:text-primary transition-colors">Address</span>
-                    <span className="text-text-secondary cursor-pointer hover:text-primary transition-colors">Payment</span>
+                {/* Header */}
+                <div className="mb-8">
+                    <h1 className="text-2xl font-bold text-text-primary">Shopping Cart</h1>
+                    <p className="text-text-secondary mt-1">Review your items and proceed to checkout</p>
                 </div>
 
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
                     {/* Left Column: Cart Items */}
-                    <div className="lg:col-span-8 flex flex-col gap-8">
+                    <div className="lg:col-span-8 flex flex-col gap-4">
                         {cartItems.map((item) => (
-                            <div key={item.id} className="flex gap-6 items-start">
+                            <div key={item.id} className={`bg-white rounded-lg shadow-sm border border-border-light p-4 flex gap-4 items-start ${item.isDiscount ? 'bg-green-50 border-green-200' : ''}`}>
                                 {/* Image Placeholder */}
-                                <div className="w-24 h-24 border-2 border-primary rounded-lg flex items-center justify-center bg-background-paper flex-shrink-0">
+                                <div className="w-20 h-20 rounded-md bg-gray-100 flex items-center justify-center flex-shrink-0 border border-border-light">
                                     {item.image ? (
-                                        <span className="text-xs text-text-secondary">{item.image}</span>
+                                        <span className="text-xs text-text-secondary font-medium">{item.image}</span>
                                     ) : (
                                         <div className="w-full h-full bg-primary/10"></div>
                                     )}
@@ -61,42 +60,47 @@ const Cart = () => {
                                 {/* Details */}
                                 <div className="flex-1 grid grid-cols-1 md:grid-cols-3 gap-4 items-center">
                                     <div className="col-span-1">
-                                        <h3 className={`font-handwritten text-xl ${item.isDiscount ? 'text-primary' : ''}`}>
+                                        <h3 className={`font-semibold text-lg ${item.isDiscount ? 'text-green-700' : 'text-text-primary'}`}>
                                             {item.name}
                                         </h3>
-                                        <button
-                                            onClick={() => handleRemove(item.id)}
-                                            className="text-white text-xs bg-black/50 hover:bg-black/70 px-2 py-0.5 mt-2 rounded flex items-center gap-1 w-fit"
-                                        >
-                                            <span className="font-sans">Remove</span>
-                                        </button>
+                                        {!item.isDiscount && (
+                                            <button
+                                                onClick={() => handleRemove(item.id)}
+                                                className="text-red-500 text-sm hover:text-red-700 flex items-center gap-1 mt-1 transition-colors"
+                                            >
+                                                <DeleteOutline style={{ fontSize: 16 }} />
+                                                <span>Remove</span>
+                                            </button>
+                                        )}
                                     </div>
 
                                     {!item.isDiscount ? (
                                         <>
-                                            <div className="text-sm font-medium">
+                                            <div className="text-sm font-medium text-text-secondary">
                                                 {item.price} r.s {item.period}
                                             </div>
-                                            <div>
-                                                <div className="flex items-center border border-primary rounded-full px-2 w-24 justify-between bg-black text-white">
+                                            <div className="flex justify-start md:justify-end">
+                                                <div className="flex items-center border border-border-light rounded-lg bg-white">
                                                     <button
                                                         onClick={() => handleQuantityChange(item.id, -1)}
-                                                        className="px-2 hover:text-primary"
+                                                        className="px-3 py-1 hover:bg-gray-50 text-text-secondary transition-colors border-r border-border-light"
                                                     >
-                                                        -
+                                                        <Remove style={{ fontSize: 14 }} />
                                                     </button>
-                                                    <span className="text-sm">{item.quantity}</span>
+                                                    <span className="px-3 py-1 text-sm font-medium text-text-primary min-w-[2rem] text-center">
+                                                        {item.quantity}
+                                                    </span>
                                                     <button
                                                         onClick={() => handleQuantityChange(item.id, 1)}
-                                                        className="px-2 hover:text-primary"
+                                                        className="px-3 py-1 hover:bg-gray-50 text-text-secondary transition-colors border-l border-border-light"
                                                     >
-                                                        +
+                                                        <Add style={{ fontSize: 14 }} />
                                                     </button>
                                                 </div>
                                             </div>
                                         </>
                                     ) : (
-                                        <div className="col-span-2 text-sm font-medium">
+                                        <div className="col-span-2 text-sm font-medium text-green-700 text-right">
                                             {item.price} rs
                                         </div>
                                     )}
@@ -107,50 +111,51 @@ const Cart = () => {
 
                     {/* Right Column: Summary */}
                     <div className="lg:col-span-4">
-                        <div className="border-2 border-primary rounded-lg p-6 bg-background-paper">
-                            <div className="space-y-4 mb-6 text-sm lg:text-base">
-                                <div className="flex justify-between font-handwritten text-lg">
+                        <div className="bg-white rounded-lg shadow-sm border border-border-light p-6 sticky top-24">
+                            <h2 className="text-lg font-semibold text-text-primary mb-4">Order Summary</h2>
+
+                            <div className="space-y-3 mb-6">
+                                <div className="flex justify-between text-text-secondary">
                                     <span>Subtotal</span>
-                                    <span>{subtotal}</span>
+                                    <span className="font-medium text-text-primary">{subtotal}</span>
                                 </div>
-                                <div className="flex justify-between font-handwritten text-lg">
+                                <div className="flex justify-between text-text-secondary">
                                     <span>Taxes</span>
-                                    <span>{taxes}</span>
+                                    <span className="font-medium text-text-primary">{taxes}</span>
                                 </div>
-                                <div className="border-t border-primary/30 my-2"></div>
-                                <div className="flex justify-between font-handwritten text-xl font-bold">
+                                <div className="border-t border-gray-100 my-2"></div>
+                                <div className="flex justify-between text-lg font-bold text-text-primary">
                                     <span>Total</span>
                                     <span>{total}</span>
                                 </div>
                             </div>
 
                             {/* Discount Code */}
-                            <div className="mb-4">
-                                <div className="flex gap-2 mb-2">
+                            <div className="mb-6">
+                                <label className="block text-sm font-medium text-text-secondary mb-2">Discount Code</label>
+                                <div className="flex gap-2">
                                     <input
                                         type="text"
-                                        placeholder="Discount code"
+                                        placeholder="Enter code"
                                         value={couponCode}
                                         onChange={(e) => setCouponCode(e.target.value)}
-                                        className="flex-1 bg-black border border-primary rounded px-3 py-2 text-sm text-white placeholder-gray-400 outline-none"
+                                        className="flex-1 rounded-lg border border-border-light px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all"
                                     />
-                                    <button className="text-primary border border-primary rounded px-4 py-2 text-sm hover:bg-primary/10 transition-colors">
+                                    <Button variant="outline" size="sm" className="whitespace-nowrap">
                                         Apply
-                                    </button>
+                                    </Button>
                                 </div>
                                 {couponApplied && (
-                                    <div className="border border-primary rounded p-2 text-center text-xs text-primary bg-primary/5">
-                                        You have successfully applied
-                                    </div>
+                                    <p className="mt-2 text-xs text-green-600 flex items-center gap-1">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-green-600"></span>
+                                        Coupon applied successfully
+                                    </p>
                                 )}
                             </div>
 
                             {/* Checkout Button */}
-                            <Button
-                                fullWidth
-                                className="h-12 text-lg font-handwritten bg-black hover:bg-black/90 text-primary border border-primary rounded"
-                            >
-                                Checkout
+                            <Button fullWidth className="h-11 text-base shadow-sm">
+                                Proceed to Checkout
                             </Button>
                         </div>
                     </div>
