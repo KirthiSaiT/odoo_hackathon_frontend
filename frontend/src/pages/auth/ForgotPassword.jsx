@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useForgotPasswordMutation } from '../../services/authApi';
+import { useToast } from '../../components/ToastProvider';
 import {
   Box,
   Paper,
@@ -14,6 +15,7 @@ import {
 import { Email } from '@mui/icons-material';
 
 const ForgotPassword = () => {
+  const toast = useToast();
   const [forgotPassword, { isLoading }] = useForgotPasswordMutation();
 
   const [email, setEmail] = useState('');
@@ -28,8 +30,10 @@ const ForgotPassword = () => {
     try {
       await forgotPassword({ email }).unwrap();
       setSuccess('The password reset link has been sent to your email.');
+      toast.success('Reset link sent to your email!');
     } catch (err) {
       setError(err?.data?.detail || 'Failed to send reset link. Please try again.');
+      toast.error(err?.data?.detail || 'Failed to send reset link');
     }
   };
 

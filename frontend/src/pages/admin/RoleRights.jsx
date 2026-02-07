@@ -1,13 +1,15 @@
 // Access Rights Configuration Page
 import React, { useState, useEffect } from 'react';
+import { useToast } from '../../components/ToastProvider';
 
 import { Button } from '../../components/ui/button';
 import { Save } from '@mui/icons-material';
 import { 
-  useGetEmployeesQuery, 
+  useGetEmployeesQuery,
   useGetUserRightsQuery, 
   useSaveUserRightsMutation 
 } from '../../services/adminApi';
+import { usePermissions } from '../../contexts/PermissionContext';
 
 const modules = [
   { module_id: 1, module_name: 'Dashboard', module_key: 'dashboard' },
@@ -18,6 +20,8 @@ const modules = [
 ];
 
 const AccessRights = () => {
+  const toast = useToast();
+  const { canUpdate } = usePermissions('role_rights');
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [rights, setRights] = useState({});
   const [hasChanges, setHasChanges] = useState(false);
@@ -77,10 +81,10 @@ const AccessRights = () => {
     try {
         await saveUserRights({ userId: selectedEmployee.user_id, rights: rightsList }).unwrap();
         setHasChanges(false);
-        alert('Access rights saved successfully!');
+        toast.success('Access rights saved successfully!');
     } catch (err) {
         console.error("Failed to save rights:", err);
-        alert("Failed to save rights");
+        toast.error("Failed to save rights");
     }
   };
 
@@ -96,7 +100,7 @@ const AccessRights = () => {
             <h1 className="text-2xl font-bold text-text-primary">Access Rights Configuration</h1>
             <p className="text-text-secondary mt-1">Configure module access permissions for each employee</p>
           </div>
-          <Button onClick={handleSave} disabled={!hasChanges || isSaving || !selectedEmployee}>
+          <Button onClick={handleSave} disabled={!hasChanges || isSaving || !selectedEmployee || !canUpdate}>
             <Save className="mr-2" style={{ fontSize: 20 }} />
             {isSaving ? 'Saving...' : 'Save Changes'}
           </Button>
@@ -173,13 +177,15 @@ const AccessRights = () => {
                       {['can_view', 'can_create', 'can_update', 'can_delete'].map((perm) => (
                         <td key={perm} className="px-6 py-4 text-center">
                           <button
-                            onClick={() => handleToggle(module.module_key, perm)}
+                            onClick={() => canUpdate && handleToggle(module.module_key, perm)}
+                            disabled={!canUpdate}
                             className={`
                               w-8 h-8 rounded-lg transition-all duration-200
                               ${moduleRights[perm]
                                 ? 'bg-green-500 text-white hover:bg-green-600'
                                 : 'bg-gray-200 text-gray-400 hover:bg-gray-300'
                               }
+                              ${!canUpdate ? 'opacity-50 cursor-not-allowed' : ''}
                             `}
                           >
                             {moduleRights[perm] ? '✓' : '✕'}

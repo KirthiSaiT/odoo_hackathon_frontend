@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useSignupMutation } from '../../services/authApi';
+import { useToast } from '../../components/ToastProvider';
 import {
   Box,
   Paper,
@@ -16,6 +17,7 @@ import { Visibility, VisibilityOff, Email, Lock, Person } from '@mui/icons-mater
 
 const Signup = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const [signup, { isLoading }] = useSignupMutation();
 
   const [formData, setFormData] = useState({
@@ -64,6 +66,7 @@ const Signup = () => {
     try {
       const { confirmPassword, ...submitData } = formData;
       await signup(submitData).unwrap();
+      toast.success('Account created! Redirecting to login...');
       setSuccess('Account created! Please check your email to verify your account.');
       setTimeout(() => navigate('/login'), 3000);
     } catch (err) {
@@ -91,7 +94,7 @@ const Signup = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%)',
+        background: '',
         padding: 2,
       }}
     >
@@ -120,7 +123,7 @@ const Signup = () => {
             Create Account
           </Typography>
           <Typography variant="body2" sx={{ color: '#666' }}>
-            Sign up for a new portal account
+            Sign up for a new Bailley account
           </Typography>
         </Box>
 
@@ -145,6 +148,7 @@ const Signup = () => {
             value={formData.name}
             onChange={handleChange}
             required
+            autoComplete="name"
             sx={inputStyles}
             InputProps={{
               startAdornment: (
@@ -163,6 +167,7 @@ const Signup = () => {
             value={formData.email}
             onChange={handleChange}
             required
+            autoComplete="email"
             sx={inputStyles}
             InputProps={{
               startAdornment: (
@@ -181,6 +186,7 @@ const Signup = () => {
             value={formData.password}
             onChange={handleChange}
             required
+            autoComplete="new-password"
             sx={inputStyles}
             helperText="Min 8 chars, 1 uppercase, 1 lowercase, 1 special char"
             FormHelperTextProps={{ sx: { color: '#666' } }}

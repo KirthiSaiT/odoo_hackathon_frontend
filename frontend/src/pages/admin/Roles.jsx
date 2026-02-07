@@ -1,5 +1,7 @@
 // Role Management Admin Page
 import React, { useState } from 'react';
+import { useToast } from '../../components/ToastProvider';
+import { usePermissions } from '../../contexts/PermissionContext';
 
 import {
   Table,
@@ -27,6 +29,8 @@ import {
 } from '../../services/adminApi';
 
 const Roles = () => {
+  const toast = useToast();
+  const { canCreate, canUpdate, canDelete } = usePermissions('roles');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
   const [formData, setFormData] = useState({
@@ -80,22 +84,23 @@ const Roles = () => {
       handleCloseModal();
     } catch (err) {
       console.error('Failed to save role:', err);
-      alert(err.data?.detail || 'Failed to save role');
+      toast.error(err.data?.detail || 'Failed to save role');
     }
   };
 
   const handleDelete = async (roleId) => {
     // Prevent deleting system roles
     if (roleId <= 3) {
-      alert('Cannot delete system roles (Admin, Employee, User)');
+      toast.warning('Cannot delete system roles (Admin, Employee, User)');
       return;
     }
     if (window.confirm('Are you sure you want to delete this role?')) {
       try {
         await deleteRole(roleId).unwrap();
+        toast.success('Role deleted successfully');
       } catch (err) {
         console.error('Failed to delete role:', err);
-        alert(err.data?.detail || 'Failed to delete role');
+        toast.error(err.data?.detail || 'Failed to delete role');
       }
     }
   };
@@ -135,10 +140,12 @@ const Roles = () => {
             <h1 className="text-2xl font-bold text-text-primary">Role Management</h1>
             <p className="text-text-secondary mt-1">Manage system roles and their descriptions</p>
           </div>
-          <Button onClick={() => handleOpenModal()} disabled={isCreating}>
-            <Add className="mr-2" style={{ fontSize: 20 }} />
-            Add Role
-          </Button>
+          {canCreate && (
+            <Button onClick={() => handleOpenModal()} disabled={isCreating}>
+              <Add className="mr-2" style={{ fontSize: 20 }} />
+              Add Role
+            </Button>
+          )}
         </div>
 
         {/* Info Card */}
@@ -184,22 +191,26 @@ const Roles = () => {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
-                    <button
-                      onClick={() => handleOpenModal(role)}
-                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                      disabled={isUpdating}
-                    >
-                      <Edit className="text-text-secondary" style={{ fontSize: 18 }} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(role.role_id)}
-                      className={`p-2 rounded-lg transition-colors ${
-                        role.role_id <= 3 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-red-50'
-                      }`}
-                      disabled={role.role_id <= 3 || isDeleting}
-                    >
-                      <Delete className={role.role_id <= 3 ? 'text-gray-300' : 'text-red-500'} style={{ fontSize: 18 }} />
-                    </button>
+                    {canUpdate && (
+                      <button
+                        onClick={() => handleOpenModal(role)}
+                        className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                        disabled={isUpdating}
+                      >
+                        <Edit className="text-text-secondary" style={{ fontSize: 18 }} />
+                      </button>
+                    )}
+                    {canDelete && (
+                      <button
+                        onClick={() => handleDelete(role.role_id)}
+                        className={`p-2 rounded-lg transition-colors ${
+                          role.role_id <= 3 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-red-50'
+                        }`}
+                        disabled={role.role_id <= 3 || isDeleting}
+                      >
+                        <Delete className={role.role_id <= 3 ? 'text-gray-300' : 'text-red-500'} style={{ fontSize: 18 }} />
+                      </button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>

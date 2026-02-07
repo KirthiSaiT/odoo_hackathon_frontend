@@ -18,7 +18,7 @@ const baseQuery = fetchBaseQuery({
 export const adminApi = createApi({
   reducerPath: 'adminApi',
   baseQuery,
-  tagTypes: ['Employees', 'Lookups', 'Users', 'Roles', 'UserRights', 'Stats'],
+  tagTypes: ['Employees', 'Lookups', 'Users', 'Roles', 'UserRights', 'MyRights', 'Stats'],
   endpoints: (builder) => ({
     // Get all lookups
     getLookups: builder.query({
@@ -119,6 +119,12 @@ export const adminApi = createApi({
       providesTags: (result, error, userId) => [{ type: 'UserRights', id: userId }],
     }),
 
+    // Get current user's rights (for permission enforcement)
+    getMyRights: builder.query({
+      query: () => '/admin/rights/me',
+      providesTags: ['MyRights'],
+    }),
+
     // Save user rights
     saveUserRights: builder.mutation({
       query: ({ userId, rights }) => ({
@@ -191,6 +197,7 @@ export const {
   useUpdateUserMutation,
   useDeleteUserMutation,
   useGetUserRightsQuery,
+  useGetMyRightsQuery,
   useSaveUserRightsMutation,
   useGetStatsQuery,
   useGetRolesQuery,

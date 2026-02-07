@@ -1,5 +1,7 @@
 // Employee Management Admin Page - Bailley Style
 import React, { useState, useEffect } from 'react';
+import { useToast } from '../../components/ToastProvider';
+import { usePermissions } from '../../contexts/PermissionContext';
 
 import {
   Table,
@@ -30,6 +32,8 @@ import {
 } from '../../services/adminApi';
 
 const Employees = () => {
+  const toast = useToast();
+  const { canCreate, canUpdate, canDelete } = usePermissions('employees');
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewMode, setIsViewMode] = useState(false);
@@ -147,7 +151,7 @@ const Employees = () => {
         };
 
         await updateEmployee(apiPayload).unwrap();
-        alert('Employee updated successfully');
+        toast.success('Employee updated successfully');
         handleCloseModal();
       } else {
         // Create Logic
@@ -177,12 +181,12 @@ const Employees = () => {
         };
 
         await createEmployee(apiPayload).unwrap();
-        alert('Employee created successfully! Login credentials have been generated.');
+        toast.success('Employee created successfully! Login credentials have been generated.');
         handleCloseModal();
       }
     } catch (err) {
       console.error('Failed to save employee:', err);
-      alert(err?.data?.detail || 'Failed to save employee');
+      toast.error(err?.data?.detail || 'Failed to save employee');
     }
   };
 
@@ -190,10 +194,10 @@ const Employees = () => {
     if (window.confirm('Are you sure you want to delete this employee?')) {
       try {
         await deleteEmployee(empId).unwrap();
-        alert('Employee deleted successfully');
+        toast.success('Employee deleted successfully');
       } catch (err) {
         console.error('Failed to delete employee:', err);
-        alert(err?.data?.detail || 'Failed to delete employee');
+        toast.error(err?.data?.detail || 'Failed to delete employee');
       }
     }
   };
@@ -223,10 +227,12 @@ const Employees = () => {
             <h1 className="text-2xl font-bold text-text-primary">Employee Management</h1>
             <p className="text-text-secondary mt-1">Manage employee records</p>
           </div>
-          <Button onClick={() => handleOpenModal()}>
-            <Add className="mr-2" style={{ fontSize: 20 }} />
-            Add Employee
-          </Button>
+          {canCreate && (
+            <Button onClick={() => handleOpenModal()}>
+              <Add className="mr-2" style={{ fontSize: 20 }} />
+              Add Employee
+            </Button>
+          )}
         </div>
 
         {/* Search */}
@@ -321,41 +327,45 @@ const Employees = () => {
                         >
                           <Visibility className="text-blue-500" style={{ fontSize: 18 }} />
                         </button>
-                        <button
-                          onClick={() => handleOpenModal({
-                             firstName: emp.first_name,
-                             lastName: emp.last_name,
-                             phone: emp.phone_number,
-                             dateOfBirth: emp.date_of_birth,
-                             genderId: emp.gender_id,
-                             maritalStatusId: emp.marital_status_id,
-                             bloodGroupId: emp.blood_group_id,
-                             dateOfJoining: emp.date_of_joining,
-                             designationId: emp.designation_id,
-                             departmentId: emp.department_id,
-                             employmentType: emp.employment_type,
-                             employmentStatus: emp.employment_status,
-                             addressLine1: emp.address_line1,
-                             addressLine2: emp.address_line2,
-                             postalCode: emp.postal_code,
-                             countryId: emp.country_id,
-                             additionalNotes: emp.additional_notes,
-                             roleId: emp.role_id,
-                             isActive: emp.is_active,
-                             ...emp
-                          })}
-                          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                          title="Edit"
-                        >
-                          <Edit className="text-text-secondary" style={{ fontSize: 18 }} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(emp.id)}
-                          className="p-2 rounded-lg hover:bg-red-50 transition-colors"
-                          title="Delete"
-                        >
-                          <Delete className="text-red-500" style={{ fontSize: 18 }} />
-                        </button>
+                        {canUpdate && (
+                          <button
+                            onClick={() => handleOpenModal({
+                               firstName: emp.first_name,
+                               lastName: emp.last_name,
+                               phone: emp.phone_number,
+                               dateOfBirth: emp.date_of_birth,
+                               genderId: emp.gender_id,
+                               maritalStatusId: emp.marital_status_id,
+                               bloodGroupId: emp.blood_group_id,
+                               dateOfJoining: emp.date_of_joining,
+                               designationId: emp.designation_id,
+                               departmentId: emp.department_id,
+                               employmentType: emp.employment_type,
+                               employmentStatus: emp.employment_status,
+                               addressLine1: emp.address_line1,
+                               addressLine2: emp.address_line2,
+                               postalCode: emp.postal_code,
+                               countryId: emp.country_id,
+                               additionalNotes: emp.additional_notes,
+                               roleId: emp.role_id,
+                               isActive: emp.is_active,
+                               ...emp
+                            })}
+                            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                            title="Edit"
+                          >
+                            <Edit className="text-text-secondary" style={{ fontSize: 18 }} />
+                          </button>
+                        )}
+                        {canDelete && (
+                          <button
+                            onClick={() => handleDelete(emp.id)}
+                            className="p-2 rounded-lg hover:bg-red-50 transition-colors"
+                            title="Delete"
+                          >
+                            <Delete className="text-red-500" style={{ fontSize: 18 }} />
+                          </button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>

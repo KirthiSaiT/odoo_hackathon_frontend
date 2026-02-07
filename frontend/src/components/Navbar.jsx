@@ -21,7 +21,7 @@ import {
 } from '@mui/icons-material';
 import logo from '../assets/odoo_logo.png';
 
-const Navbar = ({ showLogo = true, onMenuClick }) => {
+const Navbar = ({ showLogo = true, onMenuClick, isAdminMode = false }) => {
     const [isProfileOpen, setIsProfileOpen] = useState(false);
     const [isAdminOpen, setIsAdminOpen] = useState(false);
     const [closeTimeout, setCloseTimeout] = useState(null);
@@ -40,7 +40,8 @@ const Navbar = ({ showLogo = true, onMenuClick }) => {
     };
 
     const handleUserDetails = () => {
-        navigate('/user-details');
+        // Navigate to admin profile if in admin mode, otherwise user details
+        navigate(isAdminMode ? '/admin/profile' : '/user-details');
         setIsProfileOpen(false);
     };
 
@@ -105,23 +106,27 @@ const Navbar = ({ showLogo = true, onMenuClick }) => {
                             <Home style={{ fontSize: 18 }} />
                             <span className="hidden sm:inline">Home</span>
                         </Link>
-                        <span
-                            onClick={() => navigate('/shop')}
-                            className="text-text-primary font-medium hover:text-primary transition-colors cursor-pointer"
-                        >
-                            Shop
-                        </span>
+                        {!isAdminMode && (
+                            <span
+                                onClick={() => navigate('/shop')}
+                                className="text-text-primary font-medium hover:text-primary transition-colors cursor-pointer"
+                            >
+                                Shop
+                            </span>
+                        )}
                     </div>
 
                     {/* Right: Cart and Profile */}
                     <div className="flex items-center space-x-4">
-                        <Button
-                            variant="outline"
-                            size="default"
-                            onClick={() => navigate('/cart')}
-                        >
-                            Cart
-                        </Button>
+                        {!isAdminMode && (
+                            <Button
+                                variant="outline"
+                                size="default"
+                                onClick={() => navigate('/cart')}
+                            >
+                                Cart
+                            </Button>
+                        )}
 
                         <DropdownMenu>
                             <DropdownMenuTrigger>

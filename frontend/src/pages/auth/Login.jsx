@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useLoginMutation } from '../../services/authApi';
 import { setCredentials } from '../../store/authSlice';
+import { useToast } from '../../components/ToastProvider';
 import {
   Box,
   Paper,
@@ -19,6 +20,7 @@ import { Visibility, VisibilityOff, Email, Lock } from '@mui/icons-material';
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const toast = useToast();
   const [login, { isLoading }] = useLoginMutation();
 
   const [formData, setFormData] = useState({
@@ -40,6 +42,7 @@ const Login = () => {
     try {
       const result = await login(formData).unwrap();
       dispatch(setCredentials(result));
+      toast.success(`Welcome back, ${result.user?.name || 'User'}!`);
       
       // Role-based redirect: Admin/Employee → /home (with sidebar), User → /user/home (no sidebar)
       const isAdminOrEmployee = 
@@ -65,7 +68,7 @@ const Login = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%)',
+        background: '',
         padding: 2,
       }}
     >
@@ -91,7 +94,7 @@ const Login = () => {
               mb: 1,
             }}
           >
-            Welcome Back
+            Welcome Back To Bailley
           </Typography>
           <Typography variant="body2" sx={{ color: '#666' }}>
             Sign in to your account
@@ -115,6 +118,7 @@ const Login = () => {
             value={formData.email}
             onChange={handleChange}
             required
+            autoComplete="email"
             sx={{
               mb: 3,
               '& .MuiOutlinedInput-root': {
@@ -126,6 +130,13 @@ const Login = () => {
               },
               '& .MuiInputLabel-root': { color: '#666' },
               '& .MuiInputLabel-root.Mui-focused': { color: '#1976d2' },
+              '& input': {
+                '&:-webkit-autofill, &:-webkit-autofill:hover, &:-webkit-autofill:focus, &:-webkit-autofill:active': {
+                  WebkitBoxShadow: '0 0 0 30px white inset !important',
+                  WebkitTextFillColor: '#1a1a2e !important',
+                  transition: 'background-color 5000s ease-in-out 0s',
+                },
+              },
             }}
             InputProps={{
               startAdornment: (
@@ -144,6 +155,7 @@ const Login = () => {
             value={formData.password}
             onChange={handleChange}
             required
+            autoComplete="current-password"
             sx={{
               mb: 2,
               '& .MuiOutlinedInput-root': {
@@ -155,6 +167,13 @@ const Login = () => {
               },
               '& .MuiInputLabel-root': { color: '#666' },
               '& .MuiInputLabel-root.Mui-focused': { color: '#1976d2' },
+              '& input': {
+                '&:-webkit-autofill, &:-webkit-autofill:hover, &:-webkit-autofill:focus, &:-webkit-autofill:active': {
+                  WebkitBoxShadow: '0 0 0 30px white inset !important',
+                  WebkitTextFillColor: '#1a1a2e !important',
+                  transition: 'background-color 5000s ease-in-out 0s',
+                },
+              },
             }}
             InputProps={{
               startAdornment: (

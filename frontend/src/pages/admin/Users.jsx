@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import { useSelector } from 'react-redux';
 import { selectCurrentUser } from '../../store/authSlice';
+import { useToast } from '../../components/ToastProvider';
+import { usePermissions } from '../../contexts/PermissionContext';
 import {
   Table,
   TableHeader,
@@ -30,6 +32,8 @@ import {
 } from '../../services/adminApi';
 
 const Users = () => {
+  const toast = useToast();
+  const { canCreate, canUpdate, canDelete } = usePermissions('users');
   const currentUser = useSelector(selectCurrentUser);
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -86,16 +90,16 @@ const Users = () => {
             ...(formData.password ? { password: formData.password } : {})
         };
         await updateUser(payload).unwrap();
-        alert("User updated successfully");
+        toast.success("User updated successfully");
         handleCloseModal();
       } else {
         await createUser(formData).unwrap();
-        alert("User created successfully");
+        toast.success("User created successfully");
         handleCloseModal();
       }
     } catch (err) {
       console.error("Failed to save user:", err);
-      alert(err?.data?.detail || "Failed to save user");
+      toast.error(err?.data?.detail || "Failed to save user");
     }
   };
 
@@ -103,10 +107,10 @@ const Users = () => {
     if (window.confirm('Are you sure you want to delete this user?')) {
       try {
         await deleteUser(userId).unwrap();
-        alert('User deleted successfully');
+        toast.success('User deleted successfully');
       } catch (err) {
         console.error('Failed to delete user:', err);
-        alert(err?.data?.detail || 'Failed to delete user');
+        toast.error(err?.data?.detail || 'Failed to delete user');
       }
     }
   };
@@ -131,10 +135,12 @@ const Users = () => {
             <h1 className="text-2xl font-bold text-text-primary">User Management</h1>
             <p className="text-text-secondary mt-1">Manage system users and their roles</p>
           </div>
-          <Button onClick={() => handleOpenModal()}>
-            <Add className="mr-2" style={{ fontSize: 20 }} />
-            Add User
-          </Button>
+          {canCreate && (
+            <Button onClick={() => handleOpenModal()}>
+              <Add className="mr-2" style={{ fontSize: 20 }} />
+              Add User
+            </Button>
+          )}
         </div>
 
         {/* Search */}
@@ -199,18 +205,22 @@ const Users = () => {
                 </TableCell>
                 <TableCell className="text-right">
                   <div className="flex items-center justify-end gap-2">
-                    <button
-                      onClick={() => handleOpenModal(user)}
-                      className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                    >
-                      <Edit className="text-text-secondary" style={{ fontSize: 18 }} />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(user.user_id)}
-                      className="p-2 rounded-lg hover:bg-red-50 transition-colors"
-                    >
-                      <Delete className="text-red-500" style={{ fontSize: 18 }} />
-                    </button>
+                    {canUpdate && (
+                      <button
+                        onClick={() => handleOpenModal(user)}
+                        className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                      >
+                        <Edit className="text-text-secondary" style={{ fontSize: 18 }} />
+                      </button>
+                    )}
+                    {canDelete && (
+                      <button
+                        onClick={() => handleDelete(user.user_id)}
+                        className="p-2 rounded-lg hover:bg-red-50 transition-colors"
+                      >
+                        <Delete className="text-red-500" style={{ fontSize: 18 }} />
+                      </button>
+                    )}
                   </div>
                 </TableCell>
               </TableRow>

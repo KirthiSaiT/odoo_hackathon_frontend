@@ -1,6 +1,7 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useVerifyEmailMutation } from '../../services/authApi';
+import { useToast } from '../../components/ToastProvider';
 import {
   Box,
   Paper,
@@ -13,6 +14,7 @@ import { CheckCircle, Error as ErrorIcon } from '@mui/icons-material';
 
 const VerifyEmail = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
 
@@ -41,9 +43,11 @@ const VerifyEmail = () => {
         await verifyEmail({ token }).unwrap();
         setStatus('success');
         setMessage('Your email has been verified successfully!');
+        toast.success('Email verified successfully!');
       } catch (err) {
         setStatus('error');
         setMessage(err?.data?.detail || 'Email verification failed. The link may have expired.');
+        toast.error('Email verification failed');
       }
     };
 

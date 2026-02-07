@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useResetPasswordMutation } from '../../services/authApi';
+import { useToast } from '../../components/ToastProvider';
 import {
   Box,
   Paper,
@@ -16,6 +17,7 @@ import { Visibility, VisibilityOff, Lock } from '@mui/icons-material';
 
 const ResetPassword = () => {
   const navigate = useNavigate();
+  const toast = useToast();
   const [searchParams] = useSearchParams();
   const token = searchParams.get('token');
 
@@ -88,10 +90,12 @@ const ResetPassword = () => {
         new_password: formData.new_password,
       }).unwrap();
       setSuccess('Password reset successfully! Redirecting to login...');
+      toast.success('Password reset successfully!');
       setTimeout(() => navigate('/login'), 2000);
     } catch (err) {
       isSubmitting.current = false;
       setError(err?.data?.detail || 'Failed to reset password. Please try again.');
+      toast.error(err?.data?.detail || 'Failed to reset password');
     }
   };
 

@@ -22,6 +22,7 @@ import Users from './pages/admin/Users';
 import Employees from './pages/admin/Employees';
 import Roles from './pages/admin/Roles';
 import RoleRights from './pages/admin/RoleRights';
+import AdminProfile from './pages/admin/AdminProfile';
 
 
 // Light theme with blue accent
@@ -102,6 +103,7 @@ function App() {
                 <Route path="/admin/employees" element={<Employees />} />
                 <Route path="/admin/roles" element={<Roles />} />
                 <Route path="/admin/role-rights" element={<RoleRights />} />
+                <Route path="/admin/profile" element={<AdminProfile />} />
               </Route>
             </Route>
 
