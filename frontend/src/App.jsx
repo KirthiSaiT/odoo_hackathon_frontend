@@ -9,6 +9,11 @@ import {
   Home,
 } from './pages';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminLayout from './layouts/AdminLayout';
+import Users from './pages/admin/Users';
+import Employees from './pages/admin/Employees';
+import Roles from './pages/admin/Roles';
+import RoleRights from './pages/admin/RoleRights';
 
 
 // Light theme with blue accent
@@ -72,9 +77,20 @@ function App() {
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
 
+
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/home" element={<Home />} />
+            {/* Admin Layout Routes (Dashboard + Admin Pages) */}
+            <Route element={<AdminLayout />}>
+              <Route path="/home" element={<Home />} />
+              
+              {/* Admin Pages */}
+              <Route path="/admin" element={<Navigate to="/admin/users" replace />} />
+              <Route path="/admin/users" element={<Users />} />
+              <Route path="/admin/employees" element={<Employees />} />
+              <Route path="/admin/roles" element={<Roles />} />
+              <Route path="/admin/role-rights" element={<RoleRights />} />
+            </Route>
           </Route>
 
           {/* Default Redirect */}
