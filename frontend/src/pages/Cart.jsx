@@ -80,7 +80,8 @@ const Cart = () => {
 
         } catch (error) {
             console.error("Failed to create payment intent:", error);
-            setToastMessage('Failed to initialize payment. Please try again.');
+            const errorMessage = error?.data?.detail || error?.message || 'Failed to initialize payment. Please try again.';
+            setToastMessage(`Error: ${errorMessage}`);
             setShowToast(true);
         }
     };
