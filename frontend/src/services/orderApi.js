@@ -22,6 +22,10 @@ export const orderApi = createApi({
                 method: 'POST',
             }),
         }),
+        getOrderDetails: builder.query({
+            query: (id) => `/orders/${id}`,
+            providesTags: (result, error, id) => [{ type: 'Orders', id }],
+        }),
         getOrders: builder.query({
             query: () => '/orders',
             providesTags: ['Orders'],
@@ -39,4 +43,10 @@ export const orderApi = createApi({
     }),
 });
 
-export const { useGetDashboardStatsQuery, useCheckoutMutation, useGetOrdersQuery, useCreateOrderMutation } = orderApi;
+export const {
+    useGetDashboardStatsQuery,
+    useCheckoutMutation,
+    useGetOrdersQuery,
+    useCreateOrderMutation,
+    useGetOrderDetailsQuery
+} = orderApi;
