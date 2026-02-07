@@ -4,3 +4,5 @@ export { default as ForgotPassword } from './auth/ForgotPassword';
 export { default as ResetPassword } from './auth/ResetPassword';
 export { default as VerifyEmail } from './auth/VerifyEmail';
 export { default as Home } from './Home';
+export { default as UserDetails } from './UserDetails';
+export { default as Orders } from './Orders';
