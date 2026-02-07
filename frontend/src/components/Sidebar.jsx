@@ -101,7 +101,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             <div className="w-8 h-8 rounded bg-primary flex items-center justify-center">
               <span className="font-bold text-lg">V</span>
             </div>
-            <span className="font-bold text-xl tracking-tight">Vizroz ERP</span>
+            <span className="font-bold text-xl tracking-tight">Bailley ERP</span>
           </Link>
         </div>
 
@@ -147,7 +147,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium truncate">Admin User</p>
-              <p className="text-xs text-gray-400 truncate">admin@vizroz.com</p>
+              <p className="text-xs text-gray-400 truncate">admin@bailley.com</p>
             </div>
           </div>
         </div>

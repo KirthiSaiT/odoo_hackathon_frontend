@@ -40,7 +40,19 @@ const Login = () => {
     try {
       const result = await login(formData).unwrap();
       dispatch(setCredentials(result));
-      navigate('/home');
+      
+      // Role-based redirect: Admin/Employee → /home (with sidebar), User → /user/home (no sidebar)
+      const isAdminOrEmployee = 
+        result.user?.role === 'ADMIN' || 
+        result.user?.role === 'EMPLOYEE' ||
+        result.user?.role_id === 1 || 
+        result.user?.role_id === 2;
+      
+      if (isAdminOrEmployee) {
+        navigate('/home');
+      } else {
+        navigate('/user/home');
+      }
     } catch (err) {
       setError(err?.data?.detail || 'Login failed. Please check your credentials.');
     }

@@ -15,7 +15,9 @@ import {
   OrderDetails,
 } from './pages';
 import ProtectedRoute from './components/ProtectedRoute';
+import AdminProtectedRoute from './components/AdminProtectedRoute';
 import AdminLayout from './layouts/AdminLayout';
+import UserLayout from './layouts/UserLayout';
 import Users from './pages/admin/Users';
 import Employees from './pages/admin/Employees';
 import Roles from './pages/admin/Roles';
@@ -84,27 +86,37 @@ function App() {
           <Route path="/verify-email" element={<VerifyEmail />} />
 
 
-          {/* Protected Routes */}
+          {/* Protected Routes - All logged in users */}
           <Route element={<ProtectedRoute />}>
-            {/* Admin Layout Routes (Dashboard + Admin Pages) */}
-            <Route element={<AdminLayout />}>
-              <Route path="/home" element={<Home />} />
-              
-              {/* Admin Pages */}
-              <Route path="/admin" element={<Navigate to="/admin/users" replace />} />
-              <Route path="/admin/users" element={<Users />} />
-              <Route path="/admin/employees" element={<Employees />} />
-              <Route path="/admin/roles" element={<Roles />} />
-              <Route path="/admin/role-rights" element={<RoleRights />} />
+            
+            {/* ==================== */}
+            {/* ADMIN/EMPLOYEE ROUTES - With Sidebar */}
+            {/* ==================== */}
+            <Route element={<AdminProtectedRoute />}>
+              <Route element={<AdminLayout />}>
+                <Route path="/home" element={<Home />} />
+                
+                {/* Admin Management Pages */}
+                <Route path="/admin" element={<Navigate to="/admin/users" replace />} />
+                <Route path="/admin/users" element={<Users />} />
+                <Route path="/admin/employees" element={<Employees />} />
+                <Route path="/admin/roles" element={<Roles />} />
+                <Route path="/admin/role-rights" element={<RoleRights />} />
+              </Route>
             </Route>
 
-            {/* User Routes (Shop, Cart, Orders) */}
-            <Route path="/user-details" element={<UserDetails />} />
-            <Route path="/orders" element={<Orders />} />
-            <Route path="/orders/:id" element={<OrderDetails />} />
-            <Route path="/shop" element={<Shop />} />
-            <Route path="/shop/:id" element={<ProductDetails />} />
-            <Route path="/cart" element={<Cart />} />
+            {/* ==================== */}
+            {/* REGULAR USER ROUTES - No Sidebar */}
+            {/* ==================== */}
+            <Route element={<UserLayout />}>
+              <Route path="/user/home" element={<Home />} />
+              <Route path="/user-details" element={<UserDetails />} />
+              <Route path="/orders" element={<Orders />} />
+              <Route path="/orders/:id" element={<OrderDetails />} />
+              <Route path="/shop" element={<Shop />} />
+              <Route path="/shop/:id" element={<ProductDetails />} />
+              <Route path="/cart" element={<Cart />} />
+            </Route>
           </Route>
 
           {/* Default Redirect */}

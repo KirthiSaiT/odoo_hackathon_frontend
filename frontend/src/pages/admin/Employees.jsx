@@ -1,4 +1,4 @@
-// Employee Management Admin Page - VIZROZ Style
+// Employee Management Admin Page - Bailley Style
 import React, { useState, useEffect } from 'react';
 
 import {
