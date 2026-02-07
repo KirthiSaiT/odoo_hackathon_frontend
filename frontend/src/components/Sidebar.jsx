@@ -37,7 +37,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     },
     {
       type: 'link',
-      label: 'HR Management',
+      label: 'Employee Management',
       path: '/admin/employees',
       icon: Business,
     },

@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from 'react';
 
 import { Button } from '../../components/ui/button';
-import { Badge } from '../../components/ui/badge';
-import { Save, Security, Person } from '@mui/icons-material';
+import { Save } from '@mui/icons-material';
 import { 
   useGetEmployeesQuery, 
   useGetUserRightsQuery, 
@@ -109,30 +108,28 @@ const AccessRights = () => {
            {isEmployeesLoading ? (
                <div>Loading employees...</div>
            ) : (
-          <div className="flex flex-wrap gap-3 max-h-40 overflow-y-auto">
-            {employeesData?.items?.map((emp) => (
-              <button
-                key={emp.id}
-                onClick={() => setSelectedEmployee(emp)}
-                className={`
-                  px-4 py-2 rounded-lg border transition-all duration-200
-                  ${selectedEmployee?.id === emp.id
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border-light bg-background-paper text-text-primary hover:border-primary'
-                  }
-                `}
-              >
-                <div className="flex items-center gap-2">
-                  <Person style={{ fontSize: 18 }} />
-                  <span className="font-medium">{emp.first_name} {emp.last_name}</span>
-                </div>
-              </button>
-            ))}
+          <div className="max-w-md">
+            <select
+              value={selectedEmployee?.id || ''}
+              onChange={(e) => {
+                const empId = parseInt(e.target.value);
+                const emp = employeesData?.items?.find(emp => emp.id === empId);
+                setSelectedEmployee(emp || null);
+              }}
+              className="w-full px-4 py-2.5 rounded-lg border border-border-light bg-background-paper text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            >
+              <option value="">-- Select an Employee --</option>
+              {employeesData?.items?.map((emp) => (
+                <option key={emp.id} value={emp.id}>
+                  {emp.first_name} {emp.last_name} - {emp.email}
+                </option>
+              ))}
+            </select>
           </div>
           )}
           {selectedEmployee && (
             <p className="text-sm text-text-secondary mt-3">
-              Configuring rights for: <strong>{selectedEmployee.first_name} {selectedEmployee.last_name}</strong> ({selectedEmployee.role})
+              Configuring rights for: <strong>{selectedEmployee.first_name} {selectedEmployee.last_name}</strong> ({selectedEmployee.role_name || selectedEmployee.role || 'Employee'})
             </p>
           )}
         </div>
