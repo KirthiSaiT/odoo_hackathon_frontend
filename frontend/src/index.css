@@ -1,3 +1,9 @@
+@import url('https://fonts.googleapis.com/css2?family=Caveat:wght@400;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
 * {
   margin: 0;
   padding: 0;
@@ -8,7 +14,7 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  background-color: #0a0a0a;
+  background-color: #F5F5F5;
 }
 
 /* Custom scrollbar */
@@ -17,16 +23,16 @@ body {
 }
 
 ::-webkit-scrollbar-track {
-  background: #1a1a2e;
+  background: #E0E0E0;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #e91e63;
+  background: #00BCD4;
   border-radius: 4px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #f06292;
+  background: #4DD0E1;
 }
 
 /* Link styles */

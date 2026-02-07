@@ -6,9 +6,10 @@ import {
   ForgotPassword,
   ResetPassword,
   VerifyEmail,
-  Dashboard,
+  Home,
 } from './pages';
 import ProtectedRoute from './components/ProtectedRoute';
+
 
 // Light theme with blue accent
 const lightTheme = createTheme({
@@ -73,7 +74,7 @@ function App() {
 
           {/* Protected Routes */}
           <Route element={<ProtectedRoute />}>
-            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/home" element={<Home />} />
           </Route>
 
           {/* Default Redirect */}

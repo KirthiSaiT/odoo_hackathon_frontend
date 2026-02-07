@@ -40,7 +40,7 @@ const Login = () => {
     try {
       const result = await login(formData).unwrap();
       dispatch(setCredentials(result));
-      navigate('/dashboard');
+      navigate('/home');
     } catch (err) {
       setError(err?.data?.detail || 'Login failed. Please check your credentials.');
     }
