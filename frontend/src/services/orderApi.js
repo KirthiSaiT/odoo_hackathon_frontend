@@ -22,13 +22,31 @@ export const orderApi = createApi({
                 method: 'POST',
             }),
         }),
+        getOrderDetails: builder.query({
+            query: (id) => `/orders/${id}`,
+            providesTags: (result, error, id) => [{ type: 'Orders', id }],
+        }),
         getOrders: builder.query({
             query: () => '/orders',
             providesTags: ['Orders'],
             keepUnusedDataFor: 0,
             refetchOnMountOrArgChange: true,
         }),
+        createOrder: builder.mutation({
+            query: (data) => ({
+                url: '/orders/checkout',
+                method: 'POST',
+                body: data,
+            }),
+            invalidatesTags: ['Orders'],
+        }),
     }),
 });
 
-export const { useGetDashboardStatsQuery, useCheckoutMutation, useGetOrdersQuery } = orderApi;
+export const {
+    useGetDashboardStatsQuery,
+    useCheckoutMutation,
+    useGetOrdersQuery,
+    useCreateOrderMutation,
+    useGetOrderDetailsQuery
+} = orderApi;

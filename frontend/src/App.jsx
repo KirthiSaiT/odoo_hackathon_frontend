@@ -1,4 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import { ThemeProvider, createTheme, CssBaseline } from '@mui/material';
 import {
   Login,
@@ -81,6 +83,7 @@ function App() {
   return (
     <ThemeProvider theme={lightTheme}>
       <CssBaseline />
+      <ToastContainer position="top-right" autoClose={3000} />
       <Router>
         <Routes>
           {/* Public Routes */}

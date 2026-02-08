@@ -1,184 +1,182 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import { Button } from '../components/ui/button';
+import { useGetOrderDetailsQuery } from '../services/orderApi';
+import { Loader2, Download, Printer, ArrowLeft, Mail, Phone, Calendar, Hash } from 'lucide-react';
 
 const OrderDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const { data: order, isLoading, error } = useGetOrderDetailsQuery(id);
 
-    // Mock data based on wireframe
-    const order = {
-        id: id || 'S0001',
-        subscriptionId: 'S00022',
-        state: 'State of subscription',
-        plan: 'Basic Plan',
-        startDate: '01/01/2026',
-        endDate: '01/01/2027',
-        lastInvoice: {
-            number: 'INV/2026/001',
-            status: 'payment status'
-        },
-        address: {
-            line1: '123 Main St, Apt 4B',
-            line2: 'New York, NY 10001',
-            line3: 'United States',
-            email: 'john.doe@example.com',
-            phone: '+1 555-0123'
-        },
-        products: [
-            { name: "Product Name", quantity: 2.00, unitPrice: 1200, tax: "15%", amount: 2400 },
-            { name: "10% on your order", quantity: 1, unitPrice: -120, tax: "", amount: -120, isDiscount: true }
-        ],
-        financial: {
-            untaxed: 2280,
-            tax: 360,
-            total: 2640
-        }
-    };
+    if (isLoading) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="text-center">
+                    <Loader2 className="w-12 h-12 animate-spin text-primary mx-auto mb-4" />
+                    <p className="text-gray-600 font-handwritten text-xl">Preparing your receipt...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error || !order) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-gray-50">
+                <div className="text-center p-8 bg-white rounded-2xl shadow-xl max-w-md">
+                    <div className="text-red-500 text-6xl mb-4 font-handwritten">Oops!</div>
+                    <p className="text-gray-600 mb-6">We couldn't find that receipt. It might be lost in the kitchen!</p>
+                    <Button onClick={() => navigate('/orders')} className="w-full">
+                        Back to My Orders
+                    </Button>
+                </div>
+            </div>
+        );
+    }
 
     return (
-        <div className="min-h-screen bg-background text-text-primary font-sans">
+        <div className="min-h-screen bg-[#FDFCFB] text-[#2C3E50] font-sans pb-12">
             <Navbar />
 
-            <div className="max-w-7xl mx-auto px-6 py-8">
-                {/* Header */}
-                <div className="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-                    <h1 className="text-3xl font-handwritten text-text-primary">Order/{order.id}</h1>
-                    <div className="flex gap-4">
-                        <Button variant="outline" className="border-primary text-primary hover:bg-primary/10">
-                            Download
+            <div className="max-w-4xl mx-auto px-4 py-12">
+                {/* Action Bar */}
+                <div className="flex justify-between items-center mb-10">
+                    <button
+                        onClick={() => navigate('/orders')}
+                        className="flex items-center gap-2 text-gray-500 hover:text-primary transition-colors group"
+                    >
+                        <ArrowLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform" />
+                        <span className="font-medium">My Orders</span>
+                    </button>
+                    <div className="flex gap-3">
+                        <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-2 border-gray-200 text-gray-600">
+                            <Download className="w-4 h-4" /> Export PDF
                         </Button>
-                        <Button variant="outline" className="border-primary text-primary hover:bg-primary/10">
-                            Renew
-                        </Button>
-                        <Button
-                            variant="outline"
-                            className="border-primary text-primary hover:bg-primary/10"
-                            onClick={() => navigate('/orders')}
-                        >
-                            Close
+                        <Button size="sm" onClick={() => window.print()} className="flex items-center gap-2">
+                            <Printer className="w-4 h-4" /> Print Receipt
                         </Button>
                     </div>
                 </div>
 
-                {/* Main Content Box */}
-                <div className="border-2 border-primary rounded-xl p-8 bg-background-paper relative">
+                {/* The "Paper" Receipt */}
+                <div className="bg-white shadow-[0_10px_40px_rgba(0,0,0,0.04)] rounded-2xl overflow-hidden border border-gray-100 flex flex-col">
+                    {/* Top Decorative Bar */}
+                    <div className="h-2 bg-gradient-to-r from-primary to-blue-400" />
 
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
-                        {/* Left Column: Subscription Info */}
-                        <div>
-                            <div className="flex items-center gap-4 mb-6">
-                                <h2 className="text-xl font-bold">{order.subscriptionId}</h2>
-                                <span className="border border-primary rounded-full px-3 py-1 text-xs text-primary">
-                                    {order.state}
-                                </span>
-                            </div>
-
-                            <h3 className="text-lg font-handwritten text-primary border-b border-primary/30 pb-1 mb-4 w-fit">
-                                Your Subscription
-                            </h3>
-
-                            <div className="space-y-2 mb-8">
-                                <div className="grid grid-cols-3 gap-4">
-                                    <span className="font-handwritten text-text-secondary">Plan:</span>
-                                    <span className="col-span-2 border-b border-text-secondary/30">{order.plan}</span>
-                                </div>
-                                <div className="grid grid-cols-3 gap-4">
-                                    <span className="font-handwritten text-text-secondary">Start Date:</span>
-                                    <span className="col-span-2 border-b border-text-secondary/30">{order.startDate}</span>
-                                </div>
-                                <div className="grid grid-cols-3 gap-4">
-                                    <span className="font-handwritten text-text-secondary">End Date:</span>
-                                    <span className="col-span-2 border-b border-text-secondary/30">{order.endDate}</span>
-                                </div>
-                            </div>
-
-                            <h3 className="text-lg font-handwritten text-primary border-b border-primary/30 pb-1 mb-4 w-fit">
-                                Last Invoices
-                            </h3>
-                            <div className="flex items-center gap-8">
-                                <span className="border-b border-text-secondary/30">{order.lastInvoice.number}</span>
-                                <span className="border border-primary rounded-full px-3 py-0.5 text-xs text-primary">
-                                    {order.lastInvoice.status}
-                                </span>
+                    <div className="p-8 sm:p-12">
+                        {/* Receipt Header */}
+                        <div className="text-center mb-12">
+                            <h1 className="text-5xl font-handwritten text-primary mb-2">Order Receipt</h1>
+                            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-gray-50 text-gray-500 rounded-full text-sm font-medium">
+                                <Hash className="w-3.5 h-3.5" />
+                                {order.id}
                             </div>
                         </div>
 
-                        {/* Right Column: Address */}
-                        <div>
-                            <h3 className="text-lg font-handwritten text-primary border-b border-primary/30 pb-1 mb-4 w-fit">
-                                Invoicing and Shipping Address
-                            </h3>
-
-                            <div className="space-y-1 mb-6 text-sm">
-                                <p className="border-b border-text-secondary/30 w-fit pb-1">{order.address.line1}</p>
-                                <p className="border-b border-text-secondary/30 w-fit pb-1">{order.address.line2}</p>
-                                <p className="border-b border-text-secondary/30 w-fit pb-1">{order.address.line3}</p>
+                        {/* Order & Customer Metadata */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12 border-y border-gray-100 py-10">
+                            <div className="space-y-6">
+                                <div>
+                                    <h3 className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-3">Customer Details</h3>
+                                    <div className="space-y-3">
+                                        <div className="text-lg font-semibold text-gray-800">{order.user.name || 'Valued Customer'}</div>
+                                        <div className="flex items-center gap-3 text-gray-500">
+                                            <Mail className="w-4 h-4" />
+                                            <span className="text-sm">{order.user.email}</span>
+                                        </div>
+                                        {order.user.phone && (
+                                            <div className="flex items-center gap-3 text-gray-500">
+                                                <Phone className="w-4 h-4" />
+                                                <span className="text-sm">{order.user.phone}</span>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
                             </div>
 
-                            <div className="space-y-2">
-                                <div className="grid grid-cols-3 gap-4">
-                                    <span className="font-handwritten text-text-secondary">Email:</span>
-                                    <span className="col-span-2 border-b border-text-secondary/30">{order.address.email}</span>
-                                </div>
-                                <div className="grid grid-cols-3 gap-4">
-                                    <span className="font-handwritten text-text-secondary">Phone Number:</span>
-                                    <span className="col-span-2 border-b border-text-secondary/30">{order.address.phone}</span>
+                            <div className="space-y-6">
+                                <div>
+                                    <h3 className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-3">Order Info</h3>
+                                    <div className="space-y-3">
+                                        <div className="flex items-center gap-3 text-gray-600">
+                                            <Calendar className="w-4 h-4" />
+                                            <span className="text-sm font-medium">Date: <span className="text-gray-400 ml-1 font-normal">{order.created_at}</span></span>
+                                        </div>
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-4 h-4 rounded-full border-2 border-green-500 flex items-center justify-center">
+                                                <div className="w-1.5 h-1.5 bg-green-500 rounded-full" />
+                                            </div>
+                                            <span className="text-sm font-medium text-green-600 bg-green-50 px-3 py-0.5 rounded-full uppercase tracking-tighter">
+                                                {order.status}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    {/* Products Table */}
-                    <div className="mb-8">
-                        <h3 className="text-xl font-handwritten text-primary mb-4">Products</h3>
-                        <table className="w-full text-left border-collapse">
-                            <thead>
-                                <tr className="border-b border-primary text-sm font-handwritten text-text-secondary">
-                                    <th className="py-2 font-normal">Product Name</th>
-                                    <th className="py-2 font-normal text-center">Quantity</th>
-                                    <th className="py-2 font-normal text-right">Unit Price</th>
-                                    <th className="py-2 font-normal text-right">Taxes</th>
-                                    <th className="py-2 font-normal text-right">Amount</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {order.products.map((product, index) => (
-                                    <tr key={index} className="border-b border-primary/20 text-sm">
-                                        <td className={`py-3 ${product.isDiscount ? 'text-primary italic' : ''}`}>
-                                            {product.name}
-                                        </td>
-                                        <td className="py-3 text-center">
-                                            {product.quantity} {!product.isDiscount && 'Unit'}
-                                        </td>
-                                        <td className="py-3 text-right">
-                                            {product.unitPrice} {product.isDiscount ? 'rs' : 'Rs'}
-                                        </td>
-                                        <td className="py-3 text-right">{product.tax}</td>
-                                        <td className="py-3 text-right font-medium">
-                                            {product.amount}
-                                        </td>
-                                    </tr>
+                        {/* Items Breakdown */}
+                        <div className="mb-12">
+                            <h3 className="text-xl font-handwritten text-gray-800 mb-6">Items Ordered</h3>
+                            <div className="space-y-1">
+                                <div className="grid grid-cols-12 pb-3 border-b border-gray-50 text-[10px] uppercase tracking-widest text-gray-400 font-bold">
+                                    <div className="col-span-6">Description</div>
+                                    <div className="col-span-2 text-center">Qty</div>
+                                    <div className="col-span-2 text-right">Each</div>
+                                    <div className="col-span-2 text-right">Total</div>
+                                </div>
+
+                                {order.items.map((item, index) => (
+                                    <div key={index} className="grid grid-cols-12 py-5 items-center border-b border-gray-50 last:border-0">
+                                        <div className="col-span-6">
+                                            <div className="font-semibold text-gray-800">{item.product_name}</div>
+                                            {item.plan_name && (
+                                                <div className="text-[10px] text-primary uppercase font-bold tracking-tighter mt-1">
+                                                    Plan: {item.plan_name}
+                                                </div>
+                                            )}
+                                        </div>
+                                        <div className="col-span-2 text-center text-gray-500 text-sm">
+                                            {item.quantity}×
+                                        </div>
+                                        <div className="col-span-2 text-right text-gray-500 text-sm">
+                                            ₹{item.price.toLocaleString()}
+                                        </div>
+                                        <div className="col-span-2 text-right font-bold text-gray-900">
+                                            ₹{(item.quantity * item.price).toLocaleString()}
+                                        </div>
+                                    </div>
                                 ))}
-                            </tbody>
-                        </table>
-                    </div>
+                            </div>
+                        </div>
 
-                    {/* Financial Summary */}
-                    <div className="flex justify-end">
-                        <div className="w-64 space-y-2">
-                            <div className="flex justify-between text-sm font-handwritten">
-                                <span>Untaxed Amount</span>
-                                <span>{order.financial.untaxed}</span>
+                        {/* Totals Section */}
+                        <div className="bg-gray-50 rounded-2xl p-8 ml-auto max-w-sm">
+                            <div className="space-y-4">
+                                <div className="flex justify-between text-gray-500 text-sm">
+                                    <span>Subtotal</span>
+                                    <span className="font-medium">₹{order.amount.toLocaleString()}</span>
+                                </div>
+                                <div className="flex justify-between text-gray-500 text-sm">
+                                    <span>Taxes (Included)</span>
+                                    <span className="font-medium">₹0</span>
+                                </div>
+                                <div className="pt-4 border-t border-gray-200 flex justify-between items-end">
+                                    <div className="flex flex-col">
+                                        <span className="text-xs text-gray-400 uppercase tracking-widest font-bold">Final Amount</span>
+                                        <span className="text-primary font-handwritten text-3xl">Grand Total</span>
+                                    </div>
+                                    <div className="text-4xl font-bold text-gray-900 leading-none">
+                                        ₹{order.amount.toLocaleString()}
+                                    </div>
+                                </div>
                             </div>
-                            <div className="flex justify-between text-sm font-handwritten border-b border-primary/30 pb-2">
-                                <span>Tax 15%</span>
-                                <span>{order.financial.tax}</span>
-                            </div>
-                            <div className="flex justify-between text-lg font-handwritten font-bold pt-2">
-                                <span>Total</span>
-                                <span>{order.financial.total}</span>
-                            </div>
+                        </div>
+
+                        {/* Footer message */}
+                        <div className="mt-16 text-center border-t border-gray-50 pt-10">
+                            <p className="font-handwritten text-2xl text-gray-600 italic">"Thank you for your order!"</p>
+                            <p className="text-[10px] text-gray-300 uppercase tracking-[0.2em] mt-3">Digitally Generated Receipt</p>
                         </div>
                     </div>
                 </div>
