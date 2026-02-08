@@ -18,7 +18,7 @@ const PaymentModal = ({ isOpen, onClose, clientSecret, paymentIntentId, amount }
     };
 
     return (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 p-4">
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black bg-opacity-50 p-4">
             <div className="bg-white rounded-lg shadow-xl w-full max-w-lg relative animate-fade-in flex flex-col max-h-[90vh]">
                 <div className="p-6 overflow-y-auto">
                     <button

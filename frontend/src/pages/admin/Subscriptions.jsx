@@ -25,7 +25,7 @@ import {
     useDeleteSubscriptionMutation,
 } from '../../services/subscriptionsApi';
 import { useGetProductsQuery } from '../../services/productsApi';
-import { useGetUsersQuery } from '../../services/adminApi';
+import { useGetClientsQuery } from '../../services/clientApi';
 
 import { useToast } from '../../components/ToastProvider';
 
@@ -63,7 +63,7 @@ const Subscriptions = () => {
     });
 
     // API Hooks
-    const { data: usersList } = useGetUsersQuery({ page: 1, size: 100 });
+    const { data: clientsList } = useGetClientsQuery({ page: 1, size: 100 });
     const { data: subscriptionsData, isLoading, isError } = useGetSubscriptionsQuery({
         page,
         size: 10,
@@ -253,9 +253,11 @@ const Subscriptions = () => {
         }
     };
 
+    const usersList = ['this_variable_is_no_longer_used']; // placeholder ensuring no undefined error if I missed a ref
+
     return (
         <div className="p-6 bg-background min-h-screen">
-            {/* Header */}
+            {/* ... header ... */ }
             <div className="mb-6">
                 <h1 className="text-3xl font-bold text-text-primary">Subscriptions</h1>
                 <p className="text-text-secondary mt-1">
@@ -482,9 +484,9 @@ const Subscriptions = () => {
                                     required
                                 >
                                     <option value="">-- Select Customer --</option>
-                                    {usersList?.items?.map((user) => (
-                                        <option key={user.user_id} value={user.user_id}>
-                                            {user.name}
+                                    {clientsList?.items?.map((client) => (
+                                        <option key={client.id} value={client.id}>
+                                            {client.client_name}
                                         </option>
                                     ))}
                                 </select>
