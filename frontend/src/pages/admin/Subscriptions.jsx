@@ -27,7 +27,10 @@ import {
 import { useGetProductsQuery } from '../../services/productsApi';
 import { useGetUsersQuery } from '../../services/adminApi';
 
+import { useToast } from '../../components/ToastProvider';
+
 const Subscriptions = () => {
+    const toast = useToast();
     const [searchTerm, setSearchTerm] = useState('');
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
     const [selectedSubscription, setSelectedSubscription] = useState(null);
@@ -195,37 +198,37 @@ const Subscriptions = () => {
 
             if (selectedSubscription) {
                 await updateSubscription({ id: selectedSubscription.id, ...payload }).unwrap();
-                alert('Subscription updated successfully!');
+                toast.success('Subscription updated successfully!');
             } else {
                 await createSubscription(payload).unwrap();
-                alert('Subscription created successfully!');
+                toast.success('Subscription created successfully!');
             }
 
             handleCloseDrawer();
         } catch (error) {
             console.error('Error saving subscription:', error);
-            alert('Failed to save subscription. Please try again.');
+            toast.error('Failed to save subscription. Please try again.');
         }
     };
 
     const handleSendQuotation = async () => {
         setFormData(prev => ({ ...prev, status: 'QuotationSent' }));
-        alert('Quotation status updated to Sent!');
+        toast.success('Quotation status updated to Sent!');
     };
 
     const handleConfirm = async () => {
         setFormData(prev => ({ ...prev, status: 'Confirmed' }));
-        alert('Subscription confirmed!');
+        toast.success('Subscription confirmed!');
     };
 
     const handleDelete = async (id) => {
         if (window.confirm('Are you sure you want to delete this subscription?')) {
             try {
                 await deleteSubscription(id).unwrap();
-                alert('Subscription deleted successfully!');
+                toast.success('Subscription deleted successfully!');
             } catch (error) {
                 console.error('Error deleting subscription:', error);
-                alert('Failed to delete subscription.');
+                toast.error('Failed to delete subscription.');
             }
         }
     };

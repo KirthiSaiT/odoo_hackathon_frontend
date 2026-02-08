@@ -45,8 +45,15 @@ const Drawer = ({ isOpen, onClose, title, children, width = 'max-w-2xl', footer 
                 {/* Header */}
                 <div className="flex items-center justify-between px-6 py-4 border-b border-gray-100">
                     <h2 className="text-xl font-semibold text-text-primary">{title}</h2>
-                    <Button variant="ghost" size="sm" onClick={onClose} className="rounded-full h-8 w-8 p-0 hover:bg-gray-100/50" title="Back to list">
-                        <ArrowForward className="text-text-secondary" />
+                    <Button 
+                        variant="ghost" 
+                        size="sm" 
+                        onClick={onClose} 
+                        className="flex items-center gap-2 bg-primary/10 text-primary hover:bg-primary/20 hover:text-primary px-4 py-2 rounded-lg transition-colors"
+                        title="Back to list"
+                    >
+                        <span className="font-medium">Back</span>
+                        <ArrowForward style={{ fontSize: 20 }} />
                     </Button>
                 </div>
 

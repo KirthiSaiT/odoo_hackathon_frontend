@@ -5,7 +5,7 @@ const slides = [
     {
         id: 1,
         type: 'overview',
-        title: "IQMS ERP Solution",
+        title: "SMERP ERP Solution",
         description: "Streamline your construction projects with our comprehensive management system. From structures to pour sessions, we've got you covered.",
         stats: [
             { label: "Structures", value: "29", icon: "🏢" },
@@ -26,7 +26,7 @@ const slides = [
         id: 3,
         type: 'review',
         title: "Trusted by Industry Leaders",
-        description: "Don't just take our word for it. See what our clients have to say about their experience with IQMS.",
+        description: "Don't just take our word for it. See what our clients have to say about their experience with SMERP.",
         review: {
             text: "This platform completely transformed our workflow. The construction management features are unparalleled.",
             author: "Sarah Johnson",
@@ -113,10 +113,10 @@ const AuthSlider = () => {
                             <div className={`bg-white p-6 rounded-xl shadow-sm border border-gray-100 transition-all duration-1000 delay-300 ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-95'}`}>
                                 <div className="flex items-center gap-4 mb-6">
                                     <div className="w-12 h-12 rounded-xl bg-primary flex items-center justify-center text-white font-bold text-xl shadow-lg shadow-primary/30">
-                                        IQ
+                                        SM
                                     </div>
                                     <div>
-                                        <h4 className="font-bold text-gray-900 text-lg">IQMS ERP</h4>
+                                        <h4 className="font-bold text-gray-900 text-lg">SMERP ERP</h4>
                                         <span className="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded-full">v2.0.0</span>
                                     </div>
                                 </div>

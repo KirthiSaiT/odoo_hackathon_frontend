@@ -87,10 +87,10 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         <div className="h-16 flex items-center px-6 border-b border-gray-700">
           <Link to="/home" className="flex items-center gap-3">
             <div className="w-8 h-8 rounded bg-primary flex items-center justify-center">
-              <span className="font-bold text-lg">V</span>
+              <span className="font-bold text-lg">S</span>
             </div>
             <span className="font-bold text-xl tracking-tight">
-              Bailley ERP
+              SMERP ERP
             </span>
           </Link>
         </div>

@@ -20,7 +20,10 @@ import {
 } from '@mui/icons-material';
 import { useGetProductsQuery, useCreateProductMutation, useGetRecurringTemplatesQuery } from '../../services/productsApi';
 
+import { useToast } from '../../components/ToastProvider';
+
 const Products = () => {
+    const toast = useToast();
     const [searchTerm, setSearchTerm] = useState('');
     const [isDrawerOpen, setIsDrawerOpen] = useState(false); // Changed from view state
     const [activeFormTab, setActiveFormTab] = useState('recurring'); // 'recurring' or 'variants'
@@ -134,7 +137,7 @@ const Products = () => {
 
     const handleSave = async () => {
         console.log("Saving product...", formData);
-        if (!formData.name) return alert("Product Name is required");
+        if (!formData.name) return toast.error("Product Name is required");
 
         try {
             const payload = {
@@ -161,7 +164,7 @@ const Products = () => {
 
             await createProduct(payload).unwrap();
 
-            alert("Product created successfully!");
+            toast.success("Product created successfully!");
             setIsDrawerOpen(false);
             setFormData({
                 name: '',
@@ -177,7 +180,7 @@ const Products = () => {
             refetch();
         } catch (error) {
             console.error("Failed to create product", error);
-            alert("Failed to create product: " + (error.data?.detail || error.message));
+            toast.error("Failed to create product: " + (error.data?.detail || error.message));
         }
     };
 

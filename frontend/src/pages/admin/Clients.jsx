@@ -212,7 +212,7 @@ const Clients = () => {
                     <TableCell>
                       <div className="flex items-center gap-3">
                         <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
-                          <Business className="text-blue-600" style={{ fontSize: 20 }} />
+                          <Person className="text-blue-600" style={{ fontSize: 24 }} />
                         </div>
                         <span className="font-medium text-text-primary">{client.client_name}</span>
                       </div>
@@ -246,7 +246,7 @@ const Clients = () => {
                       <div className="flex items-center justify-end gap-2">
                         {/* View Details / Payments */}
                          <button
-                          onClick={() => navigate(`/clients/${client.id}`)}
+                          onClick={() => navigate(`/admin/clients/${client.id}`)}
                           className="p-2 rounded-lg hover:bg-purple-50 transition-colors"
                           title="View Details & Payments"
                         >
