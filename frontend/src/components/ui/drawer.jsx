@@ -37,7 +37,7 @@ const Drawer = ({ isOpen, onClose, title, children, width = 'max-w-2xl', footer 
 
             {/* Drawer Panel - Starts below navbar (top-16) */}
             <div
-                className={`fixed top-16 right-0 h-[calc(100vh-4rem)] bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-40 flex flex-col w-full lg:w-auto ${width} ${isOpen ? 'translate-x-0' : 'translate-x-full'} lg:max-w-[calc(100vw-16rem)]`}
+                className={`fixed top-16 right-0 h-[calc(100vh-4rem)] bg-white shadow-2xl transform transition-transform duration-300 ease-in-out z-40 flex flex-col w-full ${width} ${isOpen ? 'translate-x-0' : 'translate-x-full'} lg:max-w-[calc(100vw-16rem)]`}
                 onClick={(e) => {
                     e.stopPropagation();
                 }}
@@ -51,7 +51,7 @@ const Drawer = ({ isOpen, onClose, title, children, width = 'max-w-2xl', footer 
                 </div>
 
                 {/* Content - Scrollable */}
-                <div className="flex-1 overflow-y-auto p-6 custom-scrollbar">
+                <div className="flex-1 overflow-y-auto overflow-x-hidden p-6 custom-scrollbar">
                     {children}
                 </div>
 

@@ -25,6 +25,8 @@ import RoleRights from './pages/admin/RoleRights';
 import AdminProfile from './pages/admin/AdminProfile';
 import Products from './pages/admin/Products';
 import Subscriptions from './pages/admin/Subscriptions';
+import Clients from './pages/admin/Clients';
+import ClientDetails from './pages/admin/ClientDetails';
 
 
 // Light theme with blue accent
@@ -108,6 +110,8 @@ function App() {
                 <Route path="/admin/profile" element={<AdminProfile />} />
                 <Route path="/admin/products" element={<Products />} />
                 <Route path="/admin/subscriptions" element={<Subscriptions />} />
+                <Route path="/admin/clients" element={<Clients />} />
+                <Route path="/admin/clients/:id" element={<ClientDetails />} />
               </Route>
             </Route>
 

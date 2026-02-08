@@ -16,7 +16,10 @@ const modules = [
   { module_id: 2, module_name: 'User Management', module_key: 'users' },
   { module_id: 3, module_name: 'Role Management', module_key: 'roles' },
   { module_id: 4, module_name: 'Employee Management', module_key: 'employees' },
-  { module_id: 5, module_name: 'Access Rights', module_key: 'role_rights' }, // Kept key as role_rights for compatibility or change to access_rights? user said 'role_rights' in navbar
+  { module_id: 5, module_name: 'Access Rights', module_key: 'role_rights' },
+  { module_id: 6, module_name: 'Products', module_key: 'products' },
+  { module_id: 7, module_name: 'Subscriptions', module_key: 'subscriptions' },
+  { module_id: 8, module_name: 'Clients', module_key: 'clients' },
 ];
 
 const AccessRights = () => {

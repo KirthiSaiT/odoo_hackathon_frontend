@@ -2,10 +2,8 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { useResetPasswordMutation } from '../../services/authApi';
 import { useToast } from '../../components/ToastProvider';
+import AuthLayout from '../../layouts/AuthLayout';
 import {
-  Box,
-  Paper,
-  Typography,
   TextField,
   Button,
   Alert,
@@ -13,7 +11,7 @@ import {
   InputAdornment,
   IconButton,
 } from '@mui/material';
-import { Visibility, VisibilityOff, Lock } from '@mui/icons-material';
+import { Visibility, VisibilityOff } from '@mui/icons-material';
 
 const ResetPassword = () => {
   const navigate = useNavigate();
@@ -99,175 +97,126 @@ const ResetPassword = () => {
     }
   };
 
-  const inputStyles = {
-    mb: 2.5,
+  const fieldSx = {
     '& .MuiOutlinedInput-root': {
-      color: '#1a1a2e',
-      bgcolor: '#fff',
-      '& fieldset': { borderColor: '#1976d2' },
-      '&:hover fieldset': { borderColor: '#42a5f5' },
-      '&.Mui-focused fieldset': { borderColor: '#1976d2' },
+        color: '#1a1a2e',
+        bgcolor: '#FFFFFF',
+        borderRadius: '0.5rem',
+        '& fieldset': { borderColor: '#E0E0E0', borderWidth: '1px' },
+        '&:hover fieldset': { borderColor: '#00BCD4' },
+        '&.Mui-focused fieldset': { borderColor: '#00BCD4', borderWidth: '1px' },
     },
-    '& .MuiInputLabel-root': { color: '#666' },
-    '& .MuiInputLabel-root.Mui-focused': { color: '#1976d2' },
+    '& .MuiInputLabel-root': { color: '#757575' },
+    '& .MuiInputLabel-root.Mui-focused': { color: '#00BCD4' },
   };
 
   return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%)',
-        padding: 2,
-      }}
+    <AuthLayout 
+        title="Set New Password"
+        subtitle="Enter your new secure password below"
     >
-      <Paper
-        elevation={24}
-        sx={{
-          width: '100%',
-          maxWidth: 420,
-          p: 4,
-          borderRadius: 3,
-          background: '#ffffff',
-          border: '1px solid #1976d2',
-          boxShadow: '0 8px 32px rgba(25, 118, 210, 0.2)',
-        }}
-      >
-        {/* Header */}
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
-          <Typography
-            variant="h4"
-            sx={{
-              color: '#1976d2',
-              fontWeight: 700,
-              mb: 1,
-            }}
-          >
-            Set New Password
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#666' }}>
-            Enter your new password below
-          </Typography>
-        </Box>
-
         {/* Alerts */}
         {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
+          <Alert severity="error" sx={{ mb: 3, borderRadius: '0.5rem' }}>
             {error}
           </Alert>
         )}
         {success && (
-          <Alert severity="success" sx={{ mb: 3 }}>
+          <Alert severity="success" sx={{ mb: 3, borderRadius: '0.5rem' }}>
             {success}
           </Alert>
         )}
 
         {/* Form */}
-        <form onSubmit={handleSubmit}>
-          <TextField
-            fullWidth
-            name="new_password"
-            label="New Password"
-            type={showPassword ? 'text' : 'password'}
-            value={formData.new_password}
-            onChange={handleChange}
-            required
-            disabled={!token}
-            sx={inputStyles}
-            helperText="Min 8 chars, 1 uppercase, 1 lowercase, 1 special char"
-            FormHelperTextProps={{ sx: { color: '#666' } }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Lock sx={{ color: '#1976d2' }} />
-                </InputAdornment>
-              ),
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowPassword(!showPassword)}
-                    edge="end"
-                    sx={{ color: '#666' }}
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
+        <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700 ml-1">New Password *</label>
+                <TextField
+                    fullWidth
+                    name="new_password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={formData.new_password}
+                    onChange={handleChange}
+                    required
+                    disabled={!token}
+                    sx={fieldSx}
+                    InputProps={{
+                    endAdornment: (
+                        <InputAdornment position="end">
+                        <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge="end"
+                            sx={{ color: '#94a3b8' }}
+                        >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                        </InputAdornment>
+                    ),
+                    }}
+                />
+                <p className="text-[10px] text-gray-500 mt-1 ml-1 leading-tight">
+                    Min 8 chars, 1 uppercase, 1 lowercase, 1 special char
+                </p>
+            </div>
 
-          <TextField
-            fullWidth
-            name="confirm_password"
-            label="Confirm New Password"
-            type={showConfirmPassword ? 'text' : 'password'}
-            value={formData.confirm_password}
-            onChange={handleChange}
-            required
-            disabled={!token}
-            sx={inputStyles}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Lock sx={{ color: '#1976d2' }} />
-                </InputAdornment>
-              ),
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                    edge="end"
-                    sx={{ color: '#666' }}
-                  >
-                    {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
+            <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700 ml-1">Confirm New Password *</label>
+                <TextField
+                    fullWidth
+                    name="confirm_password"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    value={formData.confirm_password}
+                    onChange={handleChange}
+                    required
+                    disabled={!token}
+                    sx={fieldSx}
+                    InputProps={{
+                    endAdornment: (
+                        <InputAdornment position="end">
+                        <IconButton
+                            onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                            edge="end"
+                            sx={{ color: '#94a3b8' }}
+                        >
+                            {showConfirmPassword ? <VisibilityOff /> : <Visibility />}
+                        </IconButton>
+                        </InputAdornment>
+                    ),
+                    }}
+                />
+            </div>
 
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            disabled={isLoading || !token}
-            sx={{
-              py: 1.5,
-              mt: 1,
-              background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
-              fontWeight: 600,
-              fontSize: '1rem',
-              textTransform: 'none',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #42a5f5 0%, #1976d2 100%)',
-              },
-              '&:disabled': {
-                background: '#bdbdbd',
-              },
-            }}
-          >
-            {isLoading ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : 'Reset Password'}
-          </Button>
+            {/* Submit Button */}
+            <Button
+                type="submit"
+                fullWidth
+                disabled={isLoading || !token}
+                sx={{
+                    py: 1.5,
+                    bgcolor: '#00BCD4',
+                    color: 'white',
+                    fontWeight: 600,
+                    borderRadius: '0.5rem',
+                    textTransform: 'none',
+                    fontSize: '1rem',
+                    boxShadow: 'none',
+                    '&:hover': {
+                        bgcolor: '#0097A7',
+                        boxShadow: 'none',
+                    },
+                }}
+            >
+                {isLoading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Update Password'}
+            </Button>
         </form>
 
-        {/* Back to Login Link */}
-        <Box sx={{ textAlign: 'center', mt: 3 }}>
-          <Link
-            to="/login"
-            style={{
-              color: '#1976d2',
-              textDecoration: 'none',
-              fontSize: '0.875rem',
-            }}
-          >
-            ← Back to Login
-          </Link>
-        </Box>
-      </Paper>
-    </Box>
+        <p className="text-center text-sm text-gray-600 mt-8">
+            Remember your password?{' '}
+            <Link to="/login" className="font-semibold text-primary hover:text-primary-dark">
+                Back to Login
+            </Link>
+        </p>
+    </AuthLayout>
   );
 };
 
