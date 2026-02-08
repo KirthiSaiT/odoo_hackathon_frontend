@@ -1,13 +1,32 @@
+import React, { useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import Navbar from '../components/Navbar';
 import { Button } from '../components/ui/button';
 import { useGetOrderDetailsQuery } from '../services/orderApi';
 import { Loader2, Download, Printer, ArrowLeft, Mail, Phone, Calendar, Hash } from 'lucide-react';
+import html2pdf from 'html2pdf.js';
 
 const OrderDetails = () => {
     const { id } = useParams();
     const navigate = useNavigate();
+    const receiptRef = useRef();
     const { data: order, isLoading, error } = useGetOrderDetailsQuery(id);
+
+    const handleExportPDF = () => {
+        const element = receiptRef.current;
+        const opt = {
+            margin: [10, 10, 10, 10],
+            filename: `Receipt_#${id}.pdf`,
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2, useCORS: true },
+            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+        };
+
+        html2pdf().set(opt).from(element).save();
+    };
+
+    const handlePrint = () => {
+        window.print();
+    };
 
     if (isLoading) {
         return (
@@ -35,12 +54,12 @@ const OrderDetails = () => {
     }
 
     return (
-        <div className="min-h-screen bg-[#FDFCFB] text-[#2C3E50] font-sans pb-12">
-            <Navbar />
+        <div className="min-h-screen bg-[#FDFCFB] text-[#2C3E50] font-sans pb-12 print:bg-white print:pb-0">
+            {/* Removed duplicated Navbar as it is in UserLayout */}
 
-            <div className="max-w-4xl mx-auto px-4 py-12">
+            <div className="max-w-4xl mx-auto px-4 py-12 print:py-0 print:px-0 print:max-w-none">
                 {/* Action Bar */}
-                <div className="flex justify-between items-center mb-10">
+                <div className="flex justify-between items-center mb-10 print:hidden">
                     <button
                         onClick={() => navigate('/orders')}
                         className="flex items-center gap-2 text-gray-500 hover:text-primary transition-colors group"
@@ -49,17 +68,26 @@ const OrderDetails = () => {
                         <span className="font-medium">My Orders</span>
                     </button>
                     <div className="flex gap-3">
-                        <Button variant="outline" size="sm" className="hidden sm:flex items-center gap-2 border-gray-200 text-gray-600">
+                        <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={handleExportPDF}
+                            className="flex items-center gap-2 border-gray-200 text-gray-600 hover:bg-gray-50"
+                        >
                             <Download className="w-4 h-4" /> Export PDF
                         </Button>
-                        <Button size="sm" onClick={() => window.print()} className="flex items-center gap-2">
+                        <Button 
+                            size="sm" 
+                            onClick={handlePrint} 
+                            className="flex items-center gap-2"
+                        >
                             <Printer className="w-4 h-4" /> Print Receipt
                         </Button>
                     </div>
                 </div>
 
                 {/* The "Paper" Receipt */}
-                <div className="bg-white shadow-[0_10px_40px_rgba(0,0,0,0.04)] rounded-2xl overflow-hidden border border-gray-100 flex flex-col">
+                <div ref={receiptRef} className="bg-white shadow-[0_10px_40px_rgba(0,0,0,0.04)] rounded-2xl overflow-hidden border border-gray-100 flex flex-col print:shadow-none print:border-none print:rounded-none">
                     {/* Top Decorative Bar */}
                     <div className="h-2 bg-gradient-to-r from-primary to-blue-400" />
 
@@ -79,15 +107,15 @@ const OrderDetails = () => {
                                 <div>
                                     <h3 className="text-xs uppercase tracking-widest text-gray-400 font-bold mb-3">Customer Details</h3>
                                     <div className="space-y-3">
-                                        <div className="text-lg font-semibold text-gray-800">{order.user.name || 'Valued Customer'}</div>
+                                        <div className="text-lg font-semibold text-gray-800">{order?.user?.name || 'Valued Customer'}</div>
                                         <div className="flex items-center gap-3 text-gray-500">
                                             <Mail className="w-4 h-4" />
-                                            <span className="text-sm">{order.user.email}</span>
+                                            <span className="text-sm">{order?.user?.email || 'No email provided'}</span>
                                         </div>
-                                        {order.user.phone && (
+                                        {order?.user?.phone && (
                                             <div className="flex items-center gap-3 text-gray-500">
                                                 <Phone className="w-4 h-4" />
-                                                <span className="text-sm">{order.user.phone}</span>
+                                                <span className="text-sm">{order?.user?.phone}</span>
                                             </div>
                                         )}
                                     </div>
@@ -181,6 +209,36 @@ const OrderDetails = () => {
                     </div>
                 </div>
             </div>
+            <style dangerouslySetInnerHTML={{ __html: `
+                @media print {
+                    body {
+                        background: white !important;
+                    }
+                    nav, .print\\:hidden {
+                        display: none !important;
+                    }
+                    .print\\:py-0 {
+                        padding-top: 0 !important;
+                        padding-bottom: 0 !important;
+                    }
+                    .print\\:px-0 {
+                        padding-left: 0 !important;
+                        padding-right: 0 !important;
+                    }
+                    .print\\:max-w-none {
+                        max-width: none !important;
+                    }
+                    .print\\:shadow-none {
+                        box-shadow: none !important;
+                    }
+                    .print\\:border-none {
+                        border: none !important;
+                    }
+                    .print\\:rounded-none {
+                        border-radius: 0 !important;
+                    }
+                }
+            `}} />
         </div>
     );
 };

@@ -21,7 +21,7 @@ import { logout } from './authSlice';
 export const rtkQueryErrorLogger = (api) => (next) => (action) => {
   // RTK Query uses `isRejectedWithValue` to indicate a server error
   if (isRejectedWithValue(action)) {
-    if (action.payload.status === 401) {
+    if (action.payload?.status === 401) {
       // Unauthorized - token expired or invalid
       api.dispatch(logout());
       window.location.href = '/login'; // Force redirect

@@ -10,18 +10,23 @@ import PaymentModal from '../components/PaymentModal';
 
 const Cart = () => {
     const navigate = useNavigate();
-    const [showToast, setShowToast] = useState(false);
-    const [toastMessage, setToastMessage] = useState('');
+    const [toast, setToast] = useState({ isVisible: false, message: '', type: 'success' });
+    
+    // Missing state variables for payment
+    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
+    const [clientSecret, setClientSecret] = useState('');
+    const [paymentIntentId, setPaymentIntentId] = useState('');
 
+    // Destructure hooks correctly
     const { data: cartData, isLoading, isError } = useGetCartQuery();
     const [updateCartItem] = useUpdateCartItemMutation();
     const [removeFromCart] = useRemoveFromCartMutation();
     const [clearCart] = useClearCartMutation();
     const [createPaymentIntent, { isLoading: isCreatingIntent }] = useCreatePaymentIntentMutation();
 
-    const [isPaymentModalOpen, setIsPaymentModalOpen] = useState(false);
-    const [clientSecret, setClientSecret] = useState('');
-    const [paymentIntentId, setPaymentIntentId] = useState('');
+    const showMessage = (message, type = 'success') => {
+        setToast({ isVisible: true, message, type });
+    };
 
     const handleQuantityChange = async (itemId, currentQuantity, delta) => {
         const newQuantity = currentQuantity + delta;
@@ -31,20 +36,17 @@ const Cart = () => {
             await updateCartItem({ id: itemId, quantity: newQuantity }).unwrap();
         } catch (error) {
             console.error('Failed to update quantity:', error);
-            setToastMessage('Failed to update quantity');
-            setShowToast(true);
+            showMessage('Failed to update quantity', 'error');
         }
     };
 
     const handleRemoveItem = async (itemId) => {
         try {
             await removeFromCart(itemId).unwrap();
-            setToastMessage('Item removed from cart');
-            setShowToast(true);
+            showMessage('Item removed from cart', 'success');
         } catch (error) {
             console.error('Failed to remove item:', error);
-            setToastMessage('Failed to remove item');
-            setShowToast(true);
+            showMessage('Failed to remove item', 'error');
         }
     };
 
@@ -53,12 +55,10 @@ const Cart = () => {
 
         try {
             await clearCart().unwrap();
-            setToastMessage('Cart cleared');
-            setShowToast(true);
+            showMessage('Cart cleared', 'success');
         } catch (error) {
             console.error('Failed to clear cart:', error);
-            setToastMessage('Failed to clear cart');
-            setShowToast(true);
+            showMessage('Failed to clear cart', 'error');
         }
     };
 
@@ -81,8 +81,7 @@ const Cart = () => {
         } catch (error) {
             console.error("Failed to create payment intent:", error);
             const errorMessage = error?.data?.detail || error?.message || 'Failed to initialize payment. Please try again.';
-            setToastMessage(`Error: ${errorMessage}`);
-            setShowToast(true);
+            showMessage(`Error: ${errorMessage}`, 'error');
         }
     };
 
@@ -244,9 +243,10 @@ const Cart = () => {
             </div>
 
             <Toast
-                message={toastMessage}
-                isVisible={showToast}
-                onClose={() => setShowToast(false)}
+                message={toast.message}
+                isVisible={toast.isVisible}
+                type={toast.type}
+                onClose={() => setToast({ ...toast, isVisible: false })}
             />
 
             <PaymentModal

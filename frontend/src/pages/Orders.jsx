@@ -19,6 +19,10 @@ const Orders = () => {
     const { data, isLoading } = useGetOrdersQuery();
     const orders = data?.orders || [];
 
+    const handleOrderClick = (orderId) => {
+        navigate(`/orders/${orderId}`);
+    };
+
     const getStatusVariant = (status) => {
         switch (status) {
             case 'Confirmed': return 'primary';
@@ -71,17 +75,17 @@ const Orders = () => {
                                     {orders.map((order) => (
                                         <TableRow
                                             key={order.id}
-                                            // onClick={() => handleOrderClick(order.id)}
-                                            className="hover:bg-gray-50 transition-colors"
+                                            onClick={() => handleOrderClick(order.id)}
+                                            className="hover:bg-gray-50 transition-colors cursor-pointer"
                                         >
                                             <TableCell className="font-medium text-primary">
-                                                {order.id}
+                                                #{order.id}
                                             </TableCell>
                                             <TableCell className="text-gray-600">
                                                 {order.created_at}
                                             </TableCell>
                                             <TableCell className="font-semibold text-gray-900">
-                                                ${order.amount.toFixed(2)}
+                                                ₹{order.amount.toLocaleString()}
                                             </TableCell>
                                             <TableCell>
                                                 <Badge variant={getStatusVariant(order.status)} className="capitalize">

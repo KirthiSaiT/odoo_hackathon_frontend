@@ -47,7 +47,7 @@ const CheckoutForm = ({ clientSecret, paymentIntentId, amount, onSuccess }) => {
                 // Based on user request "add order id with this", logic might need adjustment.
                 // For now, we assume success -> create order.
                 const order = await createOrder({
-                    paymentIntentId: paymentIntent.id
+                    payment_intent_id: paymentIntent.id
                 }).unwrap();
 
                 toast.success('Payment successful! Order placed.');
@@ -101,9 +101,9 @@ const CheckoutForm = ({ clientSecret, paymentIntentId, amount, onSuccess }) => {
             <button
                 type="submit"
                 disabled={!stripe || isLoading}
-                className="w-full bg-indigo-600 text-white py-2 px-4 rounded-md hover:bg-indigo-700 disabled:bg-gray-400 transition-colors"
+                className="w-full bg-primary text-white py-3 px-4 rounded-md hover:bg-primary/90 disabled:bg-gray-400 font-bold transition-colors shadow-lg mt-4"
             >
-                {isLoading ? 'Processing...' : `Pay ₹${amount}`}
+                {isLoading ? 'Processing...' : `Pay ₹${amount.toLocaleString()}`}
             </button>
         </form>
     );
