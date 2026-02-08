@@ -6,7 +6,7 @@ import {
   Security,
   Business,
   Settings,
-  Work,
+  Inventory,
   AttachMoney,
   Person,
   Apartment,
@@ -37,15 +37,21 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     },
     {
       type: 'link',
-      label: 'HR Management',
+      label: 'Employee Management',
       path: '/admin/employees',
       icon: Business,
     },
     {
       type: 'link',
-      label: 'Work',
-      path: '/admin/work',
-      icon: Work,
+      label: 'Products',
+      path: '/admin/products',
+      icon: Inventory,
+    },
+    {
+      type: 'link',
+      label: 'Subscriptions',
+      path: '/admin/subscriptions',
+      icon: ConfirmationNumber,
     },
     {
       type: 'link',
@@ -82,18 +88,16 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   return (
     <>
       {/* Mobile Overlay */}
-      <div 
-        className={`fixed inset-0 bg-black/50 z-20 lg:hidden transition-opacity duration-300 ${
-          isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
-        }`}
+      <div
+        className={`fixed inset-0 bg-black/50 z-20 lg:hidden transition-opacity duration-300 ${isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+          }`}
         onClick={toggleSidebar}
       />
 
       {/* Sidebar Container */}
       <aside
-        className={`fixed top-0 left-0 h-full bg-[#1a1a2e] text-white w-64 z-30 transform transition-transform duration-300 ease-in-out flex flex-col ${
-          isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
-        }`}
+        className={`fixed top-0 left-0 h-full bg-[#1a1a2e] text-white w-64 z-30 transform transition-transform duration-300 ease-in-out flex flex-col ${isOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'
+          }`}
       >
         {/* Logo Section */}
         <div className="h-16 flex items-center px-6 border-b border-gray-700">
@@ -119,16 +123,15 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             }
 
             const Icon = item.icon;
-            
+
             return (
               <NavLink
                 key={item.path}
                 to={item.path}
                 className={({ isActive }) =>
-                  `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${
-                    isActive
-                      ? 'bg-primary text-white'
-                      : 'text-gray-400 hover:text-white hover:bg-white/5'
+                  `flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-colors ${isActive
+                    ? 'bg-primary text-white'
+                    : 'text-gray-400 hover:text-white hover:bg-white/5'
                   }`
                 }
               >

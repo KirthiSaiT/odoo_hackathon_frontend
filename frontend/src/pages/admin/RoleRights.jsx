@@ -1,24 +1,30 @@
 // Access Rights Configuration Page
 import React, { useState, useEffect } from 'react';
+import { useToast } from '../../components/ToastProvider';
 
 import { Button } from '../../components/ui/button';
-import { Badge } from '../../components/ui/badge';
-import { Save, Security, Person } from '@mui/icons-material';
+import { Save } from '@mui/icons-material';
 import { 
-  useGetEmployeesQuery, 
+  useGetEmployeesQuery,
   useGetUserRightsQuery, 
   useSaveUserRightsMutation 
 } from '../../services/adminApi';
+import { usePermissions } from '../../contexts/PermissionContext';
 
 const modules = [
   { module_id: 1, module_name: 'Dashboard', module_key: 'dashboard' },
   { module_id: 2, module_name: 'User Management', module_key: 'users' },
   { module_id: 3, module_name: 'Role Management', module_key: 'roles' },
   { module_id: 4, module_name: 'Employee Management', module_key: 'employees' },
-  { module_id: 5, module_name: 'Access Rights', module_key: 'role_rights' }, // Kept key as role_rights for compatibility or change to access_rights? user said 'role_rights' in navbar
+  { module_id: 5, module_name: 'Access Rights', module_key: 'role_rights' },
+  { module_id: 6, module_name: 'Products', module_key: 'products' },
+  { module_id: 7, module_name: 'Subscriptions', module_key: 'subscriptions' },
+  { module_id: 8, module_name: 'Clients', module_key: 'clients' },
 ];
 
 const AccessRights = () => {
+  const toast = useToast();
+  const { canUpdate } = usePermissions('role_rights');
   const [selectedEmployee, setSelectedEmployee] = useState(null);
   const [rights, setRights] = useState({});
   const [hasChanges, setHasChanges] = useState(false);
@@ -78,10 +84,10 @@ const AccessRights = () => {
     try {
         await saveUserRights({ userId: selectedEmployee.user_id, rights: rightsList }).unwrap();
         setHasChanges(false);
-        alert('Access rights saved successfully!');
+        toast.success('Access rights saved successfully!');
     } catch (err) {
         console.error("Failed to save rights:", err);
-        alert("Failed to save rights");
+        toast.error("Failed to save rights");
     }
   };
 
@@ -97,7 +103,7 @@ const AccessRights = () => {
             <h1 className="text-2xl font-bold text-text-primary">Access Rights Configuration</h1>
             <p className="text-text-secondary mt-1">Configure module access permissions for each employee</p>
           </div>
-          <Button onClick={handleSave} disabled={!hasChanges || isSaving || !selectedEmployee}>
+          <Button onClick={handleSave} disabled={!hasChanges || isSaving || !selectedEmployee || !canUpdate}>
             <Save className="mr-2" style={{ fontSize: 20 }} />
             {isSaving ? 'Saving...' : 'Save Changes'}
           </Button>
@@ -109,30 +115,28 @@ const AccessRights = () => {
            {isEmployeesLoading ? (
                <div>Loading employees...</div>
            ) : (
-          <div className="flex flex-wrap gap-3 max-h-40 overflow-y-auto">
-            {employeesData?.items?.map((emp) => (
-              <button
-                key={emp.id}
-                onClick={() => setSelectedEmployee(emp)}
-                className={`
-                  px-4 py-2 rounded-lg border transition-all duration-200
-                  ${selectedEmployee?.id === emp.id
-                    ? 'border-primary bg-primary/10 text-primary'
-                    : 'border-border-light bg-background-paper text-text-primary hover:border-primary'
-                  }
-                `}
-              >
-                <div className="flex items-center gap-2">
-                  <Person style={{ fontSize: 18 }} />
-                  <span className="font-medium">{emp.first_name} {emp.last_name}</span>
-                </div>
-              </button>
-            ))}
+          <div className="max-w-md">
+            <select
+              value={selectedEmployee?.id || ''}
+              onChange={(e) => {
+                const empId = parseInt(e.target.value);
+                const emp = employeesData?.items?.find(emp => emp.id === empId);
+                setSelectedEmployee(emp || null);
+              }}
+              className="w-full px-4 py-2.5 rounded-lg border border-border-light bg-background-paper text-text-primary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+            >
+              <option value="">-- Select an Employee --</option>
+              {employeesData?.items?.map((emp) => (
+                <option key={emp.id} value={emp.id}>
+                  {emp.first_name} {emp.last_name} - {emp.email}
+                </option>
+              ))}
+            </select>
           </div>
           )}
           {selectedEmployee && (
             <p className="text-sm text-text-secondary mt-3">
-              Configuring rights for: <strong>{selectedEmployee.first_name} {selectedEmployee.last_name}</strong> ({selectedEmployee.role})
+              Configuring rights for: <strong>{selectedEmployee.first_name} {selectedEmployee.last_name}</strong> ({selectedEmployee.role_name || selectedEmployee.role || 'Employee'})
             </p>
           )}
         </div>
@@ -176,13 +180,15 @@ const AccessRights = () => {
                       {['can_view', 'can_create', 'can_update', 'can_delete'].map((perm) => (
                         <td key={perm} className="px-6 py-4 text-center">
                           <button
-                            onClick={() => handleToggle(module.module_key, perm)}
+                            onClick={() => canUpdate && handleToggle(module.module_key, perm)}
+                            disabled={!canUpdate}
                             className={`
                               w-8 h-8 rounded-lg transition-all duration-200
                               ${moduleRights[perm]
                                 ? 'bg-green-500 text-white hover:bg-green-600'
                                 : 'bg-gray-200 text-gray-400 hover:bg-gray-300'
                               }
+                              ${!canUpdate ? 'opacity-50 cursor-not-allowed' : ''}
                             `}
                           >
                             {moduleRights[perm] ? '✓' : '✕'}

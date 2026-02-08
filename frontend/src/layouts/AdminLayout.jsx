@@ -23,7 +23,7 @@ const AdminLayout = () => {
         {/* Top Header / Navbar */}
         {/* We reuse Navbar but might want to hide the logo there since Sidebar has it */}
         <div className="sticky top-0 z-10">
-            <Navbar showLogo={false} onMenuClick={toggleSidebar} />
+            <Navbar showLogo={false} onMenuClick={toggleSidebar} isAdminMode={true} />
         </div>
 
         {/* Page Content */}

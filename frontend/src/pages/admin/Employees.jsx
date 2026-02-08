@@ -1,5 +1,7 @@
 // Employee Management Admin Page - Bailley Style
 import React, { useState, useEffect } from 'react';
+import { useToast } from '../../components/ToastProvider';
+import { usePermissions } from '../../contexts/PermissionContext';
 
 import {
   Table,
@@ -11,7 +13,7 @@ import {
 } from '../../components/ui/table';
 import { Button } from '../../components/ui/button';
 import { Badge } from '../../components/ui/badge';
-import { Modal, ModalHeader, ModalContent, ModalFooter } from '../../components/ui/modal';
+import Drawer from '../../components/ui/drawer';
 import { Input } from '../../components/ui/input';
 import {
   Add,
@@ -30,6 +32,8 @@ import {
 } from '../../services/adminApi';
 
 const Employees = () => {
+  const toast = useToast();
+  const { canCreate, canUpdate, canDelete } = usePermissions('employees');
   const [searchTerm, setSearchTerm] = useState('');
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isViewMode, setIsViewMode] = useState(false);
@@ -147,7 +151,7 @@ const Employees = () => {
         };
 
         await updateEmployee(apiPayload).unwrap();
-        alert('Employee updated successfully');
+        toast.success('Employee updated successfully');
         handleCloseModal();
       } else {
         // Create Logic
@@ -177,12 +181,12 @@ const Employees = () => {
         };
 
         await createEmployee(apiPayload).unwrap();
-        alert('Employee created successfully! Login credentials have been generated.');
+        toast.success('Employee created successfully! Login credentials have been generated.');
         handleCloseModal();
       }
     } catch (err) {
       console.error('Failed to save employee:', err);
-      alert(err?.data?.detail || 'Failed to save employee');
+      toast.error(err?.data?.detail || 'Failed to save employee');
     }
   };
 
@@ -190,10 +194,10 @@ const Employees = () => {
     if (window.confirm('Are you sure you want to delete this employee?')) {
       try {
         await deleteEmployee(empId).unwrap();
-        alert('Employee deleted successfully');
+        toast.success('Employee deleted successfully');
       } catch (err) {
         console.error('Failed to delete employee:', err);
-        alert(err?.data?.detail || 'Failed to delete employee');
+        toast.error(err?.data?.detail || 'Failed to delete employee');
       }
     }
   };
@@ -223,10 +227,12 @@ const Employees = () => {
             <h1 className="text-2xl font-bold text-text-primary">Employee Management</h1>
             <p className="text-text-secondary mt-1">Manage employee records</p>
           </div>
-          <Button onClick={() => handleOpenModal()}>
-            <Add className="mr-2" style={{ fontSize: 20 }} />
-            Add Employee
-          </Button>
+          {canCreate && (
+            <Button onClick={() => handleOpenModal()}>
+              <Add className="mr-2" style={{ fontSize: 20 }} />
+              Add Employee
+            </Button>
+          )}
         </div>
 
         {/* Search */}
@@ -321,41 +327,45 @@ const Employees = () => {
                         >
                           <Visibility className="text-blue-500" style={{ fontSize: 18 }} />
                         </button>
-                        <button
-                          onClick={() => handleOpenModal({
-                             firstName: emp.first_name,
-                             lastName: emp.last_name,
-                             phone: emp.phone_number,
-                             dateOfBirth: emp.date_of_birth,
-                             genderId: emp.gender_id,
-                             maritalStatusId: emp.marital_status_id,
-                             bloodGroupId: emp.blood_group_id,
-                             dateOfJoining: emp.date_of_joining,
-                             designationId: emp.designation_id,
-                             departmentId: emp.department_id,
-                             employmentType: emp.employment_type,
-                             employmentStatus: emp.employment_status,
-                             addressLine1: emp.address_line1,
-                             addressLine2: emp.address_line2,
-                             postalCode: emp.postal_code,
-                             countryId: emp.country_id,
-                             additionalNotes: emp.additional_notes,
-                             roleId: emp.role_id,
-                             isActive: emp.is_active,
-                             ...emp
-                          })}
-                          className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
-                          title="Edit"
-                        >
-                          <Edit className="text-text-secondary" style={{ fontSize: 18 }} />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(emp.id)}
-                          className="p-2 rounded-lg hover:bg-red-50 transition-colors"
-                          title="Delete"
-                        >
-                          <Delete className="text-red-500" style={{ fontSize: 18 }} />
-                        </button>
+                        {canUpdate && (
+                          <button
+                            onClick={() => handleOpenModal({
+                               firstName: emp.first_name,
+                               lastName: emp.last_name,
+                               phone: emp.phone_number,
+                               dateOfBirth: emp.date_of_birth,
+                               genderId: emp.gender_id,
+                               maritalStatusId: emp.marital_status_id,
+                               bloodGroupId: emp.blood_group_id,
+                               dateOfJoining: emp.date_of_joining,
+                               designationId: emp.designation_id,
+                               departmentId: emp.department_id,
+                               employmentType: emp.employment_type,
+                               employmentStatus: emp.employment_status,
+                               addressLine1: emp.address_line1,
+                               addressLine2: emp.address_line2,
+                               postalCode: emp.postal_code,
+                               countryId: emp.country_id,
+                               additionalNotes: emp.additional_notes,
+                               roleId: emp.role_id,
+                               isActive: emp.is_active,
+                               ...emp
+                            })}
+                            className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+                            title="Edit"
+                          >
+                            <Edit className="text-text-secondary" style={{ fontSize: 18 }} />
+                          </button>
+                        )}
+                        {canDelete && (
+                          <button
+                            onClick={() => handleDelete(emp.id)}
+                            className="p-2 rounded-lg hover:bg-red-50 transition-colors"
+                            title="Delete"
+                          >
+                            <Delete className="text-red-500" style={{ fontSize: 18 }} />
+                          </button>
+                        )}
                       </div>
                     </TableCell>
                   </TableRow>
@@ -372,220 +382,220 @@ const Employees = () => {
         </div>
 
 
-      {/* Add/Edit/View Employee Modal */}
-      <Modal isOpen={isModalOpen} onClose={handleCloseModal} size="xl">
-        <ModalHeader onClose={handleCloseModal}>
-          {isViewMode ? 'View Employee' : editingEmployee ? 'Edit Employee' : 'Add New Employee'}
-        </ModalHeader>
-        <form onSubmit={handleSubmit}>
-          <ModalContent>
-            <div className="max-h-[60vh] overflow-y-auto pr-2">
+      {/* Add/Edit/View Employee Drawer */}
+      <Drawer
+          isOpen={isModalOpen}
+          onClose={handleCloseModal}
+          title={isViewMode ? 'View Employee' : editingEmployee ? 'Edit Employee' : 'Add New Employee'}
+          width="max-w-4xl"
+          footer={
+              <>
+                  <Button variant="outline" type="button" onClick={handleCloseModal}>
+                      {isViewMode ? 'Close' : 'Cancel'}
+                  </Button>
+                  {!isViewMode && (
+                      <Button type="button" onClick={handleSubmit} disabled={isCreating || isUpdating}>
+                          {isCreating ? 'Creating...' : (editingEmployee ? (isUpdating ? 'Updating...' : 'Update') : 'Create')} Employee
+                      </Button>
+                  )}
+              </>
+          }
+      >
+          <form className="pt-2 pb-6">
               {/* Personal Information */}
               <h3 className="text-md font-semibold text-text-primary mb-3 pb-2 border-b border-border-light">
-                Personal Information
+                  Personal Information
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <Input
-                  label="First Name *"
-                  value={formData.firstName}
-                  onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                  placeholder="Enter first name"
-                  required
-                  disabled={isViewMode}
-                />
-                <Input
-                  label="Last Name"
-                  value={formData.lastName}
-                  onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                  placeholder="Enter last name"
-                  disabled={isViewMode}
-                />
-                <Input
-                  label="Email *"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  placeholder="Enter email"
-                  required
-                  disabled={isViewMode}
-                />
-                <Input
-                  label="Phone Number"
-                  value={formData.phone}
-                  onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-                  placeholder="Enter phone"
-                  disabled={isViewMode}
-                />
-                <Input
-                  label="Date of Birth"
-                  type="date"
-                  value={formData.dateOfBirth}
-                  onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
-                  disabled={isViewMode}
-                />
-                <SelectField
-                  label="Gender"
-                  value={formData.genderId}
-                  onChange={(e) => setFormData({ ...formData, genderId: parseInt(e.target.value) })}
-                  options={lookups?.genders}
-                  disabled={isViewMode}
-                />
-                <SelectField
-                  label="Marital Status"
-                  value={formData.maritalStatusId}
-                  onChange={(e) => setFormData({ ...formData, maritalStatusId: parseInt(e.target.value) })}
-                  options={lookups?.marital_statuses}
-                  disabled={isViewMode}
-                />
-                <SelectField
-                  label="Blood Group"
-                  value={formData.bloodGroupId}
-                  onChange={(e) => setFormData({ ...formData, bloodGroupId: parseInt(e.target.value) })}
-                  options={lookups?.blood_groups}
-                  disabled={isViewMode}
-                />
+                  <Input
+                      label="First Name *"
+                      value={formData.firstName}
+                      onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
+                      placeholder="Enter first name"
+                      required
+                      disabled={isViewMode}
+                  />
+                  <Input
+                      label="Last Name"
+                      value={formData.lastName}
+                      onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
+                      placeholder="Enter last name"
+                      disabled={isViewMode}
+                  />
+                  <Input
+                      label="Email *"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                      placeholder="Enter email"
+                      required
+                      disabled={isViewMode}
+                  />
+                  <Input
+                      label="Phone Number"
+                      value={formData.phone}
+                      onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
+                      placeholder="Enter phone"
+                      disabled={isViewMode}
+                  />
+                  <Input
+                      label="Date of Birth"
+                      type="date"
+                      value={formData.dateOfBirth}
+                      onChange={(e) => setFormData({ ...formData, dateOfBirth: e.target.value })}
+                      disabled={isViewMode}
+                  />
+                  <SelectField
+                      label="Gender"
+                      value={formData.genderId}
+                      onChange={(e) => setFormData({ ...formData, genderId: parseInt(e.target.value) })}
+                      options={lookups?.genders}
+                      disabled={isViewMode}
+                  />
+                  <SelectField
+                      label="Marital Status"
+                      value={formData.maritalStatusId}
+                      onChange={(e) => setFormData({ ...formData, maritalStatusId: parseInt(e.target.value) })}
+                      options={lookups?.marital_statuses}
+                      disabled={isViewMode}
+                  />
+                  <SelectField
+                      label="Blood Group"
+                      value={formData.bloodGroupId}
+                      onChange={(e) => setFormData({ ...formData, bloodGroupId: parseInt(e.target.value) })}
+                      options={lookups?.blood_groups}
+                      disabled={isViewMode}
+                  />
               </div>
 
               {/* Employment Details */}
               <h3 className="text-md font-semibold text-text-primary mb-3 pb-2 border-b border-border-light">
-                Employment Details
+                  Employment Details
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-                <Input
-                  label="Date of Joining"
-                  type="date"
-                  value={formData.dateOfJoining}
-                  onChange={(e) => setFormData({ ...formData, dateOfJoining: e.target.value })}
-                  disabled={isViewMode}
-                />
-                <SelectField
-                  label="Department"
-                  value={formData.departmentId}
-                  onChange={(e) => setFormData({ ...formData, departmentId: parseInt(e.target.value) })}
-                  options={lookups?.departments}
-                  disabled={isViewMode}
-                />
-                <SelectField
-                  label="Designation"
-                  value={formData.designationId}
-                  onChange={(e) => setFormData({ ...formData, designationId: parseInt(e.target.value) })}
-                  options={lookups?.designations}
-                  disabled={isViewMode}
-                />
-                <SelectField
-                  label="Employment Type"
-                  value={formData.employmentType}
-                  onChange={(e) => setFormData({ ...formData, employmentType: parseInt(e.target.value) })}
-                  options={lookups?.employment_types}
-                  disabled={isViewMode}
-                />
-                <SelectField
-                  label="Employment Status"
-                  value={formData.employmentStatus}
-                  onChange={(e) => setFormData({ ...formData, employmentStatus: parseInt(e.target.value) })}
-                  options={lookups?.employment_statuses}
-                  disabled={isViewMode}
-                />
-                <SelectField
-                  label="Role *"
-                  value={formData.roleId}
-                  onChange={(e) => setFormData({ ...formData, roleId: parseInt(e.target.value) })}
-                  options={lookups?.roles}
-                  disabled={isViewMode}
-                />
+                  <Input
+                      label="Date of Joining"
+                      type="date"
+                      value={formData.dateOfJoining}
+                      onChange={(e) => setFormData({ ...formData, dateOfJoining: e.target.value })}
+                      disabled={isViewMode}
+                  />
+                  <SelectField
+                      label="Department"
+                      value={formData.departmentId}
+                      onChange={(e) => setFormData({ ...formData, departmentId: parseInt(e.target.value) })}
+                      options={lookups?.departments}
+                      disabled={isViewMode}
+                  />
+                  <SelectField
+                      label="Designation"
+                      value={formData.designationId}
+                      onChange={(e) => setFormData({ ...formData, designationId: parseInt(e.target.value) })}
+                      options={lookups?.designations}
+                      disabled={isViewMode}
+                  />
+                  <SelectField
+                      label="Employment Type"
+                      value={formData.employmentType}
+                      onChange={(e) => setFormData({ ...formData, employmentType: parseInt(e.target.value) })}
+                      options={lookups?.employment_types}
+                      disabled={isViewMode}
+                  />
+                  <SelectField
+                      label="Employment Status"
+                      value={formData.employmentStatus}
+                      onChange={(e) => setFormData({ ...formData, employmentStatus: parseInt(e.target.value) })}
+                      options={lookups?.employment_statuses}
+                      disabled={isViewMode}
+                  />
+                  <SelectField
+                      label="Role *"
+                      value={formData.roleId}
+                      onChange={(e) => setFormData({ ...formData, roleId: parseInt(e.target.value) })}
+                      options={lookups?.roles}
+                      disabled={isViewMode}
+                  />
               </div>
 
               {/* Address */}
               <h3 className="text-md font-semibold text-text-primary mb-3 pb-2 border-b border-border-light">
-                Address
+                  Address
               </h3>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                <Input
-                  label="Address Line 1"
-                  value={formData.addressLine1}
-                  onChange={(e) => setFormData({ ...formData, addressLine1: e.target.value })}
-                  placeholder="Enter address"
-                  disabled={isViewMode}
-                />
-                <Input
-                  label="Address Line 2"
-                  value={formData.addressLine2}
-                  onChange={(e) => setFormData({ ...formData, addressLine2: e.target.value })}
-                  placeholder="Enter address line 2"
-                  disabled={isViewMode}
-                />
-                <Input
-                  label="City"
-                  value={formData.city}
-                  onChange={(e) => setFormData({ ...formData, city: e.target.value })}
-                  placeholder="Enter city"
-                  disabled={isViewMode}
-                />
-                <Input
-                  label="State"
-                  value={formData.state}
-                  onChange={(e) => setFormData({ ...formData, state: e.target.value })}
-                  placeholder="Enter state"
-                  disabled={isViewMode}
-                />
-                <Input
-                  label="Postal Code"
-                  value={formData.postalCode}
-                  onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
-                  placeholder="Enter postal code"
-                  disabled={isViewMode}
-                />
-                <SelectField
-                  label="Country"
-                  value={formData.countryId}
-                  onChange={(e) => setFormData({ ...formData, countryId: parseInt(e.target.value) })}
-                  options={lookups?.countries}
-                  disabled={isViewMode}
-                />
+                  <Input
+                      label="Address Line 1"
+                      value={formData.addressLine1}
+                      onChange={(e) => setFormData({ ...formData, addressLine1: e.target.value })}
+                      placeholder="Enter address"
+                      disabled={isViewMode}
+                  />
+                  <Input
+                      label="Address Line 2"
+                      value={formData.addressLine2}
+                      onChange={(e) => setFormData({ ...formData, addressLine2: e.target.value })}
+                      placeholder="Enter address line 2"
+                      disabled={isViewMode}
+                  />
+                  <Input
+                      label="City"
+                      value={formData.city}
+                      onChange={(e) => setFormData({ ...formData, city: e.target.value })}
+                      placeholder="Enter city"
+                      disabled={isViewMode}
+                  />
+                  <Input
+                      label="State"
+                      value={formData.state}
+                      onChange={(e) => setFormData({ ...formData, state: e.target.value })}
+                      placeholder="Enter state"
+                      disabled={isViewMode}
+                  />
+                  <Input
+                      label="Postal Code"
+                      value={formData.postalCode}
+                      onChange={(e) => setFormData({ ...formData, postalCode: e.target.value })}
+                      placeholder="Enter postal code"
+                      disabled={isViewMode}
+                  />
+                  <SelectField
+                      label="Country"
+                      value={formData.countryId}
+                      onChange={(e) => setFormData({ ...formData, countryId: parseInt(e.target.value) })}
+                      options={lookups?.countries}
+                      disabled={isViewMode}
+                  />
               </div>
 
               {/* Additional Notes */}
               <h3 className="text-md font-semibold text-text-primary mb-3 pb-2 border-b border-border-light">
-                Additional Information
+                  Additional Information
               </h3>
               <div className="grid grid-cols-1 gap-4">
-                <div>
-                  <label className="block text-sm font-medium text-text-primary mb-1.5">Notes</label>
-                  <textarea
-                    value={formData.additionalNotes}
-                    onChange={(e) => setFormData({ ...formData, additionalNotes: e.target.value })}
-                    placeholder="Enter additional notes"
-                    rows={3}
-                    disabled={isViewMode}
-                    className="w-full px-4 py-2.5 rounded-lg border border-border-light bg-background-paper text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none disabled:bg-gray-100"
-                  />
-                </div>
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
-                    id="is_active"
-                    checked={formData.isActive}
-                    onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
-                    disabled={isViewMode}
-                    className="w-4 h-4 rounded border-border-light text-primary focus:ring-primary"
-                  />
-                  <label htmlFor="is_active" className="text-sm text-text-primary">Active</label>
-                </div>
+                  <div>
+                      <label className="block text-sm font-medium text-text-primary mb-1.5">Notes</label>
+                      <textarea
+                          value={formData.additionalNotes}
+                          onChange={(e) => setFormData({ ...formData, additionalNotes: e.target.value })}
+                          placeholder="Enter additional notes"
+                          rows={3}
+                          disabled={isViewMode}
+                          className="w-full px-4 py-2.5 rounded-lg border border-border-light bg-background-paper text-text-primary placeholder-text-secondary focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent resize-none disabled:bg-gray-100"
+                      />
+                  </div>
+                  <div className="flex items-center gap-2">
+                      <input
+                          type="checkbox"
+                          id="is_active"
+                          checked={formData.isActive}
+                          onChange={(e) => setFormData({ ...formData, isActive: e.target.checked })}
+                          disabled={isViewMode}
+                          className="w-4 h-4 rounded border-border-light text-primary focus:ring-primary"
+                      />
+                      <label htmlFor="is_active" className="text-sm text-text-primary">Active</label>
+                  </div>
               </div>
-            </div>
-          </ModalContent>
-          <ModalFooter>
-            <Button variant="outline" type="button" onClick={handleCloseModal}>
-              {isViewMode ? 'Close' : 'Cancel'}
-            </Button>
-            {!isViewMode && (
-              <Button type="submit" disabled={isCreating || isUpdating}>
-                {isCreating ? 'Creating...' : (editingEmployee ? (isUpdating ? 'Updating...' : 'Update') : 'Create')} Employee
-              </Button>
-            )}
-          </ModalFooter>
-        </form>
-      </Modal>
+          </form>
+      </Drawer>
     </div>
   );
 };

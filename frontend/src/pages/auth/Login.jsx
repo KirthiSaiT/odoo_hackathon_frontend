@@ -3,10 +3,9 @@ import { useNavigate, Link } from 'react-router-dom';
 import { useDispatch } from 'react-redux';
 import { useLoginMutation } from '../../services/authApi';
 import { setCredentials } from '../../store/authSlice';
+import { useToast } from '../../components/ToastProvider';
+import AuthLayout from '../../layouts/AuthLayout';
 import {
-  Box,
-  Paper,
-  Typography,
   TextField,
   Button,
   Alert,
@@ -14,11 +13,12 @@ import {
   InputAdornment,
   IconButton,
 } from '@mui/material';
-import { Visibility, VisibilityOff, Email, Lock } from '@mui/icons-material';
+import { Visibility, VisibilityOff, Google, Apple } from '@mui/icons-material';
 
 const Login = () => {
   const navigate = useNavigate();
   const dispatch = useDispatch();
+  const toast = useToast();
   const [login, { isLoading }] = useLoginMutation();
 
   const [formData, setFormData] = useState({
@@ -40,8 +40,8 @@ const Login = () => {
     try {
       const result = await login(formData).unwrap();
       dispatch(setCredentials(result));
+      toast.success(`Welcome back, ${result.user?.name || 'User'}!`);
       
-      // Role-based redirect: Admin/Employee → /home (with sidebar), User → /user/home (no sidebar)
       const isAdminOrEmployee = 
         result.user?.role === 'ADMIN' || 
         result.user?.role === 'EMPLOYEE' ||
@@ -58,180 +58,138 @@ const Login = () => {
     }
   };
 
-  return (
-    <Box
-      sx={{
-        minHeight: '100vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        background: 'linear-gradient(135deg, #e3f2fd 0%, #bbdefb 50%, #90caf9 100%)',
-        padding: 2,
-      }}
-    >
-      <Paper
-        elevation={24}
-        sx={{
-          width: '100%',
-          maxWidth: 420,
-          p: 4,
-          borderRadius: 3,
-          background: '#ffffff',
-          border: '1px solid #1976d2',
-          boxShadow: '0 8px 32px rgba(25, 118, 210, 0.2)',
-        }}
-      >
-        {/* Header */}
-        <Box sx={{ textAlign: 'center', mb: 4 }}>
-          <Typography
-            variant="h4"
-            sx={{
-              color: '#1976d2',
-              fontWeight: 700,
-              mb: 1,
-            }}
-          >
-            Welcome Back
-          </Typography>
-          <Typography variant="body2" sx={{ color: '#666' }}>
-            Sign in to your account
-          </Typography>
-        </Box>
+  const inputSx = {
+    mb: 2.5,
+    '& .MuiOutlinedInput-root': {
+        color: '#1a1a2e',
+        bgcolor: '#f8fafc',
+        borderRadius: '0.75rem',
+        '& fieldset': { borderColor: '#e2e8f0', borderWidth: '1px' },
+        '&:hover fieldset': { borderColor: '#cbd5e1' },
+        '&.Mui-focused fieldset': { borderColor: '#6366f1', borderWidth: '1px' },
+    },
+    '& .MuiInputLabel-root': { color: '#64748b' },
+    '& .MuiInputLabel-root.Mui-focused': { color: '#6366f1' },
+  };
 
-        {/* Error Alert */}
+  return (
+    <AuthLayout 
+        title="Login to Dashboard"
+        subtitle="Fill the below form to login"
+    >
         {error && (
-          <Alert severity="error" sx={{ mb: 3 }}>
+            <Alert severity="error" sx={{ mb: 3, borderRadius: '0.5rem' }}>
             {error}
-          </Alert>
+            </Alert>
         )}
 
-        {/* Form */}
-        <form onSubmit={handleSubmit}>
-          <TextField
-            fullWidth
-            name="email"
-            label="Email Id"
-            type="email"
-            value={formData.email}
-            onChange={handleChange}
-            required
-            sx={{
-              mb: 3,
-              '& .MuiOutlinedInput-root': {
-                color: '#1a1a2e',
-                bgcolor: '#fff',
-                '& fieldset': { borderColor: '#1976d2' },
-                '&:hover fieldset': { borderColor: '#42a5f5' },
-                '&.Mui-focused fieldset': { borderColor: '#1976d2' },
-              },
-              '& .MuiInputLabel-root': { color: '#666' },
-              '& .MuiInputLabel-root.Mui-focused': { color: '#1976d2' },
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Email sx={{ color: '#1976d2' }} />
-                </InputAdornment>
-              ),
-            }}
-          />
+        <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700 ml-1">Email *</label>
+                <TextField
+                    fullWidth
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    variant="outlined"
+                    sx={{
+                        '& .MuiOutlinedInput-root': {
+                            color: '#1a1a2e',
+                            bgcolor: '#FFFFFF',
+                            borderRadius: '0.5rem',
+                            '& fieldset': { borderColor: '#E0E0E0', borderWidth: '1px' },
+                            '&:hover fieldset': { borderColor: '#00BCD4' },
+                            '&.Mui-focused fieldset': { borderColor: '#00BCD4', borderWidth: '1px' },
+                        },
+                        '& .MuiInputLabel-root': { color: '#757575' },
+                        '& .MuiInputLabel-root.Mui-focused': { color: '#00BCD4' },
+                    }}
+                    placeholder=""
+                    InputProps={{ style: { fontSize: '0.95rem' } }}
+                />
+            </div>
 
-          <TextField
-            fullWidth
-            name="password"
-            label="Password"
-            type={showPassword ? 'text' : 'password'}
-            value={formData.password}
-            onChange={handleChange}
-            required
-            sx={{
-              mb: 2,
-              '& .MuiOutlinedInput-root': {
-                color: '#1a1a2e',
-                bgcolor: '#fff',
-                '& fieldset': { borderColor: '#1976d2' },
-                '&:hover fieldset': { borderColor: '#42a5f5' },
-                '&.Mui-focused fieldset': { borderColor: '#1976d2' },
-              },
-              '& .MuiInputLabel-root': { color: '#666' },
-              '& .MuiInputLabel-root.Mui-focused': { color: '#1976d2' },
-            }}
-            InputProps={{
-              startAdornment: (
-                <InputAdornment position="start">
-                  <Lock sx={{ color: '#1976d2' }} />
-                </InputAdornment>
-              ),
-              endAdornment: (
-                <InputAdornment position="end">
-                  <IconButton
-                    onClick={() => setShowPassword(!showPassword)}
-                    edge="end"
-                    sx={{ color: '#666' }}
-                  >
-                    {showPassword ? <VisibilityOff /> : <Visibility />}
-                  </IconButton>
-                </InputAdornment>
-              ),
-            }}
-          />
+            <div className="space-y-1">
+                <label className="block text-sm font-medium text-gray-700 ml-1">Password *</label>
+                <TextField
+                    fullWidth
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                    variant="outlined"
+                    sx={{
+                        '& .MuiOutlinedInput-root': {
+                            color: '#1a1a2e',
+                            bgcolor: '#FFFFFF', 
+                            borderRadius: '0.5rem',
+                            '& fieldset': { borderColor: '#E0E0E0', borderWidth: '1px' }, // Light gray border by default
+                            '&:hover fieldset': { borderColor: '#00BCD4' },
+                            '&.Mui-focused fieldset': { borderColor: '#00BCD4', borderWidth: '1px' }, // Primary border on focus
+                        },
+                         '& .MuiInputLabel-root': { color: '#757575' },
+                        '& .MuiInputLabel-root.Mui-focused': { color: '#00BCD4' },
+                    }}
+                    placeholder=""
+                    InputProps={{
+                        style: { fontSize: '0.95rem' },
+                        endAdornment: (
+                        <InputAdornment position="end">
+                            <IconButton
+                            onClick={() => setShowPassword(!showPassword)}
+                            edge="end"
+                            sx={{ color: '#94a3b8' }}
+                            >
+                            {showPassword ? <VisibilityOff /> : <Visibility />}
+                            </IconButton>
+                        </InputAdornment>
+                        ),
+                    }}
+                />
+            </div>
 
-          {/* Forgot Password Link */}
-          <Box sx={{ textAlign: 'right', mb: 3 }}>
-            <Link
-              to="/forgot-password"
-              style={{
-                color: '#1976d2',
-                textDecoration: 'none',
-                fontSize: '0.875rem',
-              }}
+            <div className="flex items-center justify-between">
+                 <Link
+                    to="/forgot-password"
+                    className="text-sm font-medium text-primary hover:text-primary-dark"
+                >
+                    Forgot Password?
+                </Link>
+            </div>
+
+            <Button
+                type="submit"
+                fullWidth
+                disabled={isLoading}
+                sx={{
+                    py: 1.5,
+                    bgcolor: '#00BCD4', // Primary Cyan
+                    color: 'white',
+                    fontWeight: 600,
+                    borderRadius: '0.5rem',
+                    textTransform: 'none',
+                    fontSize: '1rem',
+                    boxShadow: 'none',
+                    '&:hover': {
+                        bgcolor: '#0097A7', // Primary Dark
+                        boxShadow: 'none',
+                    },
+                }}
             >
-              Forgot Password?
-            </Link>
-          </Box>
-
-          {/* Submit Button */}
-          <Button
-            type="submit"
-            fullWidth
-            variant="contained"
-            disabled={isLoading}
-            sx={{
-              py: 1.5,
-              background: 'linear-gradient(135deg, #1976d2 0%, #1565c0 100%)',
-              fontWeight: 600,
-              fontSize: '1rem',
-              textTransform: 'none',
-              '&:hover': {
-                background: 'linear-gradient(135deg, #42a5f5 0%, #1976d2 100%)',
-              },
-              '&:disabled': {
-                background: '#bdbdbd',
-              },
-            }}
-          >
-            {isLoading ? <CircularProgress size={24} sx={{ color: '#fff' }} /> : 'Login'}
-          </Button>
+                {isLoading ? <CircularProgress size={24} sx={{ color: 'white' }} /> : 'Login'}
+            </Button>
         </form>
 
-        {/* Sign Up Link */}
-        <Box sx={{ textAlign: 'center', mt: 3 }}>
-          <Typography variant="body2" sx={{ color: '#666' }}>
+        <p className="text-center text-sm text-gray-600 mt-8">
             Don't have an account?{' '}
-            <Link
-              to="/signup"
-              style={{
-                color: '#1976d2',
-                textDecoration: 'none',
-                fontWeight: 600,
-              }}
-            >
-              Sign Up
+            <Link to="/signup" className="font-semibold text-primary hover:text-primary-dark">
+                Sign up
             </Link>
-          </Typography>
-        </Box>
-      </Paper>
-    </Box>
+        </p>
+    </AuthLayout>
   );
 };
 

@@ -44,3 +44,7 @@ a {
 a:hover {
   opacity: 0.9;
 }
+
+.font-handwritten {
+  font-family: 'Caveat', cursive;
+}
